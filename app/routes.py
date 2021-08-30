@@ -16,6 +16,11 @@ def index():
         return render_template('buy.html', title='Home')
 
 
+@app.route('/request')
+def request():
+    return render_template('request.html')
+    
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
