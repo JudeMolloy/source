@@ -6,3 +6,10 @@ body {
     display: inline;
     max-height: 1.5rem;
 }
+
+
+/* OVERRIDE telephone input styling */
+
+.iti {
+    display: block;
+}

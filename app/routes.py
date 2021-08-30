@@ -1,12 +1,12 @@
 import traceback
 
-from flask import render_template, url_for, flash, request
+from flask import render_template, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import redirect
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Confirmation
+from app.models import User, Confirmation, Request
 from libs.email import MailgunException
 from deorators import check_email_confirmed
 
@@ -16,10 +16,39 @@ def index():
         return render_template('buy.html', title='Home')
 
 
-@app.route('/request')
+@app.route('/request',  methods = ['GET', 'POST'])
 def request():
-    return render_template('request.html')
-    
+    form = RequestForm()
+
+    if form.validate_on_submit():
+        form_data = {
+            'product_name': form.product_name.data,
+            'size': form.size.data,
+            'extra_info': form.extra_info.data,
+        }
+        session['product_request_data'] = form_data
+        return redirect(url_for('details'))
+
+    return render_template('request.html', form=form)
+
+
+@app.route('/details', methods = ['GET', 'POST'])
+def details():
+    form = CustomerForm()
+
+    if form.validate_on_submit():
+        data = session['product_request_data']
+        product_request = Request(
+            product_name=data['product_name'],
+            size=data['size'],
+            extra_info=data['extra_info'],
+            full_name=form.full_name.data,
+            email=form.email.data,
+            phone=form.phone.data,
+        )
+        print(product_request)
+    return render_template('details.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

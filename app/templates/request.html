@@ -9,7 +9,8 @@
 <div class="flex place-content-center mt-10 mx-4">
     <div class="relative rounded-xl bg-white lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
 
-    <form class="flex-auto p-6">
+    <form action="" method="post" class="flex-auto p-6">
+      {{ form.hidden_tag() }}
         <div class="block">
             <div class="flex flex-wrap mb-2">
                 <h1 class="flex-auto text-xl font-semibold">
@@ -23,16 +24,32 @@
         <div class="mb-4">
 
           <div class="mt-2">
-            <label for="productName" class="block text-sm font-semibold text-gray-700">Name of Product</label>
+            <label for="productName" class="block text-sm font-semibold text-gray-700">{{ form.product_name.label }}</label>
             <div class="mt-1">
-              <input type="text" name="productName" id="productName" class="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2 " placeholder="Nike Jordan Air 1's">
+              {{ form.product_name(size=64, placeholder="What are you looking for?", class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2" ) }} <br>
+              {% for error in form.product_name.errors %}
+              <span style="color: red;">{{ error }}</span>
+              {% endfor %}
             </div>
           </div>
 
-          <div class="mt-2">
-            <label for="email" class="block text-sm font-semibold text-gray-700">Size</label>
+          <div class="">
+            <label for="email" class="block text-sm font-semibold text-gray-700">{{ form.size.label }}</label>
             <div class="mt-1">
-              <input type="text" name="email" id="email" class="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2 " placeholder="you@example.com">
+              {{ form.size(size=64, placeholder="What size would you like?", class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2" ) }} <br>
+              {% for error in form.size.errors %}
+              <span style="color: red;">{{ error }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="">
+            <label for="email" class="block text-sm font-semibold text-gray-700">{{ form.extra_info.label }}</label>
+            <div class="mt-1">
+              {{ form.extra_info(rows="3", placeholder="Is there anything else we should know?", class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2" ) }} <br>
+              {% for error in form.extra_info.errors %}
+              <span style="color: red;">{{ error }}</span>
+              {% endfor %}
             </div>
           </div>
 
@@ -40,12 +57,11 @@
       </div>
       <div class="flex space-x-3 mb-4 text-sm font-medium">
         <div class="flex-auto flex space-x-3">
-          <button class="w-1/2 flex items-center justify-center rounded-md bg-black text-white py-2" type="submit">Buy now</button>
-          <button class="w-1/2 flex items-center justify-center rounded-md border border-gray-300 py-2" type="button">Decline Offer</button>
+          {{ form.submit(class_="w-full flex items-center justify-center rounded-md bg-black text-white py-2") }}
         </div>
       </div>
       <p class="text-sm text-gray-500">
-        Cash payments must be made on delivery.
+        Once you send a request 1LUX will attempt to source your product and get back to you.
       </p>
     </form>
 </div>
