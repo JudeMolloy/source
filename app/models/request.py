@@ -22,7 +22,7 @@ class Request(db.Model):
     email = db.Column(db.String(120), index=True)
     phone = db.Column(db.String(16), index=True)
 
-    sourced = db.Column(db.Boolean(default=False), nullable=False)
+    sourced = db.Column(db.Boolean, default=False, nullable=False)
 
     # one-to-one relationship with payment link.
     payment_link = db.relationship('PaymentLink', backref='request', lazy=True, uselist=False)

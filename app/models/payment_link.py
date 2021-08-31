@@ -17,8 +17,8 @@ class PaymentLink(db.Model):
 
     expire_at = db.Column(db.Integer, nullable=False)
 
-    active = db.Column(db.Boolean(default=True), nullable=False)
-    paid = db.Column(db.Boolean(default=False), nullable=False)
+    active = db.Column(db.Boolean, default=True, nullable=False)
+    paid = db.Column(db.Boolean, default=False, nullable=False)
 
     price = db.Column(db.Float, nullable=False)
     info = db.Column(db.String)
