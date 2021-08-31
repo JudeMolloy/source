@@ -8,6 +8,8 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from libs.email import Mailgun
+from app.models.user import User
+
 
 @login.user_loader
 def load_user(id):

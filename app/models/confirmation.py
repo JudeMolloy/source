@@ -5,6 +5,7 @@ from uuid import uuid4
 from time import time
 from datetime import datetime
 from app import app, db, login
+from app.models.user import User
 
 
 CONFIRMATION_EXPIRATION_DELTA = 1800  # 30 minutes (in seconds).

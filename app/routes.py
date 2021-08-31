@@ -11,13 +11,14 @@ from app.models.confirmation import Confirmation
 from app.models.request import Request
 from app.models.company import Company
 from app.models.usage_period import UsagePeriod
+from app.models.payment_link import PaymentLink
 from libs.email import MailgunException
 from deorators import check_email_confirmed
 
 
 @app.route('/')
 def index():
-        return render_template('customer/buy.html', title='Home')
+        return render_template('buy.html', title='Home')
 
 
 @app.route('/request',  methods = ['GET', 'POST'])
@@ -139,3 +140,14 @@ def resend_email_confirmation():
 def unconfirmed_email():
     email = current_user.email
     return render_template("unconfirmed-email.html")
+
+
+# ADMIN ROUTES (SAAS CUSTOMERS NOT MASTERO EMPLOYEES)
+
+@app.route('/<company_endpoint>/admin')
+def company_admin(company_endpoint):
+    # code to find the relevant company and display only their information if the user matches it
+
+    # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
+    requests = Request.query.all()
+    return render_template("admin/requests.html", requests=requests)

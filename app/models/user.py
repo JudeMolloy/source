@@ -8,6 +8,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from libs.email import Mailgun
+from app.models.payment_link import PaymentLink
 
 
 @login.user_loader
