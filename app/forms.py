@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length
 from wtforms.widgets import TextArea
-from app.models import User
+from app.models.user import User
 
 
 class LoginForm(FlaskForm):
@@ -46,6 +46,6 @@ class CustomerForm(FlaskForm):
             if not phonenumbers.is_valid_number(p):
                 raise ValueError()
         except (phonenumbers.phonenumberutil.NumberParseException, ValueError):
-            print(phone)
+            
             raise ValidationError('Invalid phone number')
         

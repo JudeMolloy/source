@@ -6,14 +6,18 @@ from werkzeug.utils import redirect
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Confirmation, Request
+from app.models.user import User
+from app.models.confirmation import Confirmation
+from app.models.request import Request
+from app.models.company import Company
+from app.models.usage_period import UsagePeriod
 from libs.email import MailgunException
 from deorators import check_email_confirmed
 
 
 @app.route('/')
 def index():
-        return render_template('buy.html', title='Home')
+        return render_template('customer/buy.html', title='Home')
 
 
 @app.route('/request',  methods = ['GET', 'POST'])
@@ -46,8 +50,15 @@ def details():
             email=form.email.data,
             phone=form.phone.data,
         )
-        print(product_request)
+        product_request.save_to_db()
+        return redirect(url_for('request_complete'))
+
     return render_template('details.html', form=form)
+
+
+@app.route('/request-complete')
+def request_complete():
+    return render_template('request-complete.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
