@@ -1,6 +1,6 @@
 import phonenumbers
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FloatField
 from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length
 from wtforms.widgets import TextArea
 from app.models.user import User
@@ -49,3 +49,13 @@ class CustomerForm(FlaskForm):
             
             raise ValidationError('Invalid phone number')
         
+
+class CreatePaymentLinkForm(FlaskForm):
+    full_name = StringField('Customer Full Name*', validators=[DataRequired()])
+    product_name = StringField('Product Name*', validators=[DataRequired()])
+    size = StringField('Size*', validators=[DataRequired()])
+    price = FloatField('Price*', validators=[DataRequired()])
+    info = StringField('Info')
+
+    submit = SubmitField('Send Payment Link')
+    

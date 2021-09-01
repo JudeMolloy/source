@@ -2,7 +2,7 @@
 
 
 {% block content %}
-    <div class="container m-auto mt-10">
+    <div class="container m-auto mt-10 mb-16 min-h-screen">
         <div class="flex-1 min-w-0 mb-4">
             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
               Requests
@@ -85,6 +85,13 @@
                         <!-- More people... -->
                         </tbody>
                     </table>
+                    {% if not requests %}
+                        <div class="flex w-full my-4 justify-center">
+                            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate text-center">
+                            You currently have no requests.
+                            </h2>
+                        </div>
+                    {% endif %}
                     </div>
                 </div>
                 </div>

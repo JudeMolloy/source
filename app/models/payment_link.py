@@ -29,7 +29,7 @@ class PaymentLink(db.Model):
     user = db.relationship("User")
 
     # one-to-one relationship with request.
-    request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=False)
+    request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=True)
 
 
     # ensure when generating link that the correct company url is used.

@@ -4,7 +4,7 @@ from flask import render_template, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import redirect
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm
+from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm, CreatePaymentLinkForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models.user import User
 from app.models.confirmation import Confirmation
@@ -150,7 +150,7 @@ def company_requests(company_endpoint):
 
     # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
     requests = Request.query.all()
-    return render_template("admin/requests.html", requests=requests)
+    return render_template("admin/requests.html")
 
 
 @app.route('/<company_endpoint>/admin/request/<request_id>')
@@ -167,3 +167,12 @@ def company_settings(company_endpoint):
     # code to find the relevant company and display only their information if the user matches it
 
     return render_template("admin/settings.html")
+
+
+@app.route('/<company_endpoint>/admin/create-payment-link')
+def company_create_payment_link(company_endpoint):
+    # code to find the relevant company and display only their information if the user matches it
+
+    form = CreatePaymentLinkForm()
+
+    return render_template("admin/create-payment-link.html", form=form)
