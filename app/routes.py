@@ -144,8 +144,8 @@ def unconfirmed_email():
 
 # ADMIN ROUTES (SAAS CUSTOMERS NOT MASTERO EMPLOYEES)
 
-@app.route('/<company_endpoint>/admin')
-def company_admin(company_endpoint):
+@app.route('/<company_endpoint>/admin/requests')
+def company_requests(company_endpoint):
     # code to find the relevant company and display only their information if the user matches it
 
     # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
@@ -153,7 +153,16 @@ def company_admin(company_endpoint):
     return render_template("admin/requests.html", requests=requests)
 
 
-@app.route('/<company_endpoint>/settings')
+@app.route('/<company_endpoint>/admin/request/<request_id>')
+def company_request(company_endpoint, request_id):
+    # code to find the relevant company and display only their information if the user matches it
+
+    # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
+    request = Request.query.first()
+    return render_template("admin/request.html", request=request)
+
+
+@app.route('/<company_endpoint>/admin/settings')
 def company_settings(company_endpoint):
     # code to find the relevant company and display only their information if the user matches it
 
