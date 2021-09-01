@@ -5,6 +5,9 @@ from uuid import uuid4
 from time import time
 from datetime import datetime
 from app import app, db, login
+from app.models.company import Company
+from app.models.payment_link import PaymentLink
+
 
 
 class Request(db.Model):

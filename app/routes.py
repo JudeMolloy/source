@@ -151,3 +151,10 @@ def company_admin(company_endpoint):
     # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
     requests = Request.query.all()
     return render_template("admin/requests.html", requests=requests)
+
+
+@app.route('/<company_endpoint>/settings')
+def company_settings(company_endpoint):
+    # code to find the relevant company and display only their information if the user matches it
+
+    return render_template("admin/settings.html")
