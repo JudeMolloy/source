@@ -70,11 +70,13 @@
                     </div>
 
                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                        <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                        <label for="price" class="block text-sm font-medium text-gray-700">
+                            {{ form.price.label }}
+                        </label>
                         <div class="mt-1 relative rounded-md shadow-sm">
                           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none pb-6">
                             <span class="text-gray-500 sm:text-sm">
-                              $
+                              £
                             </span>
                           </div>
                           {{ form.price(class_="pl-7 pr-12 shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>

@@ -14,10 +14,13 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    forename = StringField('First Name*', validators=[DataRequired()])
+    surname = StringField('Last Name*', validators=[DataRequired()])
+    email = StringField('Email*', validators=[DataRequired(), Email()])
+    phone = StringField('Phone*', validators=[DataRequired(), Length(max=16)])
+    password = PasswordField('Password*', validators=[DataRequired()])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+        'Repeat Password*', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
     def validate_email(self, email):
@@ -48,7 +51,20 @@ class CustomerForm(FlaskForm):
         except (phonenumbers.phonenumberutil.NumberParseException, ValueError):
             
             raise ValidationError('Invalid phone number')
-        
+
+
+class CompanyForm(FlaskForm):
+    name = StringField('Company Name*', validators=[DataRequired()])
+    endpoint = StringField('Custom Link*', validators=[DataRequired()])
+
+    accept_cash = BooleanField('Accept Cash Payments')
+
+    twitter_url = StringField('Twitter Link')
+    facebook_url = StringField('Facebook Link')
+    instagram_url = StringField('Instagram Link')
+
+    submit = SubmitField('Save')
+
 
 class CreatePaymentLinkForm(FlaskForm):
     full_name = StringField('Customer Full Name*', validators=[DataRequired()])

@@ -1,0 +1,13 @@
+{% extends 'mastero-base.html' %}
+
+
+{% block content %}
+    <div class="bg-gray-50 pb-20">
+        <div class="flex place-content-center mt-10">
+            <img src="{{ url_for('static', filename='img/mastero-logo-black.png')}}" alt="Mastero" class="h-16 max-h-xs" />
+        </div>
+        <div class="container m-auto h-96 place-content-center flex items-center ">
+            <h1 id="error-page-message" class="text-center text-6xl font-bold">Page not found...</h1>
+        </div>
+    </div>
+{% endblock %}

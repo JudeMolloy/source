@@ -16,6 +16,8 @@ class Company(db.Model):
     logo_url = db.Column(db.String)
     endpoint = db.Column(db.String(64), unique=True)
 
+    accept_cash = db.Column(db.Boolean(), default=True)
+
     # social media
     twitter_url = db.Column(db.String)
     facebook_url = db.Column(db.String)
@@ -23,6 +25,10 @@ class Company(db.Model):
 
     # one-to-one relationship with user.
     user = db.relationship('User', backref='company', lazy=True, uselist=False)
+
+    @classmethod
+    def find_company_by_endpoint(cls, endpoint: str):
+        return cls.query.filter_by(endpoint=endpoint).first()
 
     def save_to_db(self):
         db.session.add(self)

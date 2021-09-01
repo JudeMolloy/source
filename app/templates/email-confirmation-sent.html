@@ -1,0 +1,24 @@
+{% extends 'mastero-base.html' %}
+
+
+{% block content %}
+    <div class="bg-gray-50 pb-20">
+        <div class="flex place-content-center mt-10">
+            <img src="{{ url_for('static', filename='img/mastero-logo-black.png')}}" alt="Mastero" class="h-16 max-h-xs" />
+        </div>
+
+        <div class="text-center mt-32">
+            <h2 class="font-bold text-4xl">Thanks for creating an account {{ name }}!</h2>
+            <h3 class="text-xl mt-6">An email has been sent to <span class="font-bold">{{ email_address }}</span>. Please click the link to confirm your email address.</h3>
+            <br>
+            <p>Can't find the email? Don't forget to check your <span class="font-bold">junk folder</span>.</p>
+            <br>
+            <a href="{{ url_for('resend_confirmation')}}">
+                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Resend confirmation email
+                </button>
+            </a>
+        </div>
+
+    </div>
+{% endblock %}

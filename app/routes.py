@@ -4,7 +4,7 @@ from flask import render_template, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import redirect
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm, CreatePaymentLinkForm
+from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm, CreatePaymentLinkForm, CompanyForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models.user import User
 from app.models.confirmation import Confirmation
@@ -95,6 +95,7 @@ def register():
         try:
             user = User(forename=form.forename.data,
                         surname=form.surname.data,
+
                         email=form.email.data)
             user.set_password(form.password.data)
             user.save_to_db()
@@ -119,10 +120,9 @@ def register():
 
 
 @app.route('/email-confirmation-sent')
-@login_required
 def email_confirmation_sent():
-    name = current_user.full_name
-    email = current_user.email
+    #name = current_user.full_name
+    #email = current_user.email
 
     return render_template("email-confirmation-sent.html")
 
@@ -165,8 +165,26 @@ def company_request(company_endpoint, request_id):
 @app.route('/<company_endpoint>/admin/settings')
 def company_settings(company_endpoint):
     # code to find the relevant company and display only their information if the user matches it
+    
+    company = Company.find_company_by_endpoint(company_endpoint)
 
-    return render_template("admin/settings.html")
+    if company:
+        # check if company is related to current user
+        if company.user.id == current_user.id:
+
+            form = CompanyForm(company)
+
+            if form.validate_on_submit():
+                return 1
+            return render_template("admin/settings.html", form=form)
+    return render_template("errors/404.html")
+
+
+@app.route('/<company_endpoint>/admin/account-settings')
+def company_account_settings(company_endpoint):
+    # code to find the relevant company and display only their information if the user matches it
+
+    return render_template("admin/account-settings.html")
 
 
 @app.route('/<company_endpoint>/admin/create-payment-link')
