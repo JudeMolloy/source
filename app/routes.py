@@ -128,10 +128,9 @@ def email_confirmation_sent():
 
 
 @app.route('/email-confirmation-re-sent')
-@login_required
 def resend_email_confirmation():
-    email = current_user.email
-    current_user.send_confirmation_email()
+    #email = current_user.email
+    #current_user.send_confirmation_email()
     return render_template("email-confirmation-re-sent.html")
 
 

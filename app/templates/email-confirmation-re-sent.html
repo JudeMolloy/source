@@ -1,4 +1,20 @@
-<h3>A <strong>new</strong> email has been sent to {{ email address }}. Please click the link to confirm your email address.</h3>
-<br>
-<p>Can't find the email? Don't forget to check your junk folder.</p>
-<br>
+{% extends 'mastero-base.html' %}
+
+
+{% block content %}
+    <div class="bg-gray-50 pb-20">
+        <div class="flex place-content-center mt-10">
+            <img src="{{ url_for('static', filename='img/mastero-logo-black.png')}}" alt="Mastero" class="h-16 max-h-xs" />
+        </div>
+
+        <div class="text-center mt-32">
+            <h3 class="text-xl mt-6">A <span class="font-bold">new</span> email has been sent to <span class="font-bold">{{ email_address }}</span>. Please click the link to confirm your email address.</h3>
+            <br>
+            <p>Can't find the email? Don't forget to check your <span class="font-bold">junk folder</span>. 
+                <br> If you still cannot find the email please contact support.</p>
+            <br>
+        </div>
+
+    </div>
+{% endblock %}
+
