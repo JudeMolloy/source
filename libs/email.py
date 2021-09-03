@@ -13,7 +13,7 @@ class MailgunException(Exception):
         super().__init__(message)
 
 
-class Mailgun:
+class Email:
     MAILGUN_DOMAIN = os.environ.get("MAILGUN_DOMAIN")
     MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
 

@@ -12,7 +12,8 @@ from app.models.request import Request
 from app.models.company import Company
 from app.models.usage_period import UsagePeriod
 from app.models.payment_link import PaymentLink
-from libs.email import MailgunException
+from libs.email import MailgunException, Email
+from libs.otp import OTP
 from deorators import check_email_confirmed
 
 
@@ -193,3 +194,17 @@ def company_create_payment_link(company_endpoint):
     form = CreatePaymentLinkForm()
 
     return render_template("admin/create-payment-link.html", form=form)
+
+
+@app.route('/test')
+def test():
+    otp = OTP.generate(6)
+    subject = "Email Confirmation - Mastero"
+    text = "Your one time password is: {}".format(otp)
+    html = '<html>Your account confirmation code is: {}<p>This code will expire in 30 minutes.</p></html>'.format(otp)
+
+    test = Email.send_email(['judemolloy07@hotmail.com'], subject, text, html)
+
+    print(test)
+    return("ok nice.")
+

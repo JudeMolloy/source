@@ -7,8 +7,9 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
-from libs.email import Mailgun
+from libs.email import Email
 from app.models.payment_link import PaymentLink
+from libs.otp import OTP
 
 
 @login.user_loader
@@ -64,10 +65,10 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def send_confirmation_email(self):
-        link = request.url_root[:-1] + url_for("confirmation", confirmation_id=self.most_recent_confirmation.id)
+        otp = OTP.generate(6)
         subject = "Email Confirmation - Mastero"
-        text = "Click the link to confirm your account: {}".format(link)
-        html = '<html><a href="{}">Click here to confirm account</a><p>This link will expire in 30 minutes.</p></html>'.format(link)
+        text = "Your one time password is: {}".format(otp)
+        html = '<html>Your account confirmation code is: {}<p>This code will expire in 30 minutes.</p></html>'.format(otp)
 
         return Mailgun.send_email([self.email], subject, text, html)
 
