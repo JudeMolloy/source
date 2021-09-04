@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
 from libs.email import Email
 from app.models.payment_link import PaymentLink
+from app.models.confirmation import Confirmation
 from libs.otp import OTP
 
 
@@ -41,18 +42,29 @@ class User(UserMixin, db.Model):
     usage_periods = db.relationship("UsagePeriod", lazy="dynamic", cascade="all, delete-orphan")
 
     # one-to-one relationship with company.
-    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
 
     def __repr__(self):
         return '<User: {} {}>'.format(self.forename, self.surname)
 
     @property
     def active_subscription(self):
+        return self.forename + " " + self.surname
+
+    @property
+    def full_name(self):
         return self.plan != 'none'
 
     @property
     def most_recent_confirmation(self):
         return self.confirmations.order_by(db.desc(Confirmation.expire_at)).first()
+
+    @property
+    def has_reached_confirmation_limit(self):
+        confirmations = self.confirmations.order_by(db.desc(Confirmation.expire_at)).filter_by(expired=False).all()
+        if len(confirmations) >= 2:
+            return True
+        return False
 
     @property
     def is_confirmed(self):
@@ -65,12 +77,12 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def send_confirmation_email(self):
-        otp = OTP.generate(6)
-        subject = "Email Confirmation - Mastero"
+        otp = self.most_recent_confirmation.otp
+        subject = "Email Confirmation Code - Mastero"
         text = "Your one time password is: {}".format(otp)
         html = '<html>Your account confirmation code is: {}<p>This code will expire in 30 minutes.</p></html>'.format(otp)
 
-        return Mailgun.send_email([self.email], subject, text, html)
+        return Email.send_email([self.email], subject, text, html)
 
     @classmethod
     def find_by_email(cls, email: str):

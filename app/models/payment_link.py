@@ -26,7 +26,6 @@ class PaymentLink(db.Model):
 
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    user = db.relationship("User")
 
     # one-to-one relationship with request.
     request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=True)

@@ -21,10 +21,13 @@ class Company(db.Model):
     # social media
     twitter_url = db.Column(db.String)
     facebook_url = db.Column(db.String)
-    instagram = db.Column(db.String)
+    instagram_url = db.Column(db.String)
 
     # one-to-one relationship with user.
     user = db.relationship('User', backref='company', lazy=True, uselist=False)
+
+    # one-to-many relationship with request.
+    requests = db.relationship("Request", lazy="dynamic", cascade="all, delete-orphan")
 
     @classmethod
     def find_company_by_endpoint(cls, endpoint: str):

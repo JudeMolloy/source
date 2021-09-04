@@ -30,8 +30,7 @@ class UsagePeriod(db.Model):
 
     # many-to-one relationship with user.
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    user = db.relationship("User")    
-
+    
     def __repr__(self):
         return '<Usage Period - Start:{} End:{}>'.format(self.start.date, self.end.date)
 

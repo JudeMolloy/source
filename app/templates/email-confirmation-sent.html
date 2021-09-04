@@ -3,26 +3,43 @@
 
 {% block content %}
     <div class="bg-gray-50 pb-20">
-        <div class="flex place-content-center mt-10">
+        <div class="flex place-content-center pt-10">
             <img src="{{ url_for('static', filename='img/mastero-logo-black.png')}}" alt="Mastero" class="h-16 max-h-xs" />
         </div>
 
-        <div class="text-center mt-32">
-            <h2 class="font-bold text-4xl">Thanks for creating an account {{ name }}!</h2>
-            <h3 class="text-xl mt-6">An email has been sent to <span class="font-bold">{{ email_address }}</span>. Please click the link to confirm your email address.</h3>
+        <div class="text-center mt-32 mb-16">
+
+            {% if incorrect == True %}
+                <h2 class="font-bold text-4xl">The code you entered was incorrect. Please try again.</h2>
+            {% else %}
+                <h2 class="font-bold text-4xl">{{ message1 }}</h2>
+                <h3 class="text-xl mt-6">{{ message2 }}</h3>
+            {% endif %}
+
+            <form class="space-y-6" action="" method="post">
+                {{ form.hidden_tag() }}
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">
+                    {{ form.otp.label }}
+                </label>
+                <div class="mt-1 flex place-content-center">
+                    {{ form.otp(size=6, pattern="\d*", maxlength="6", class_="appearance-none block w-lg px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                </div>
+                {% for error in form.otp.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+            </div>
+    
+            <div>
+                {{ form.submit(class_="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") }}
+            </div>
+            </form>
             <br>
-            <p>Can't find the email? Don't forget to check your <span class="font-bold">junk folder</span>.</p>
-            <br>
-            <a href="{{ url_for('resend_email_confirmation')}}">
-                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    I have confirmed my email
-                  </button>
-            </a>
-            <a href="{{ url_for('resend_email_confirmation')}}">
-                <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Resend confirmation email
-                </button>
-            </a>
+            <p>
+                <a class="font-medium text-indigo-600 hover:text-indigo-500" href="{{ url_for('email_confirmation_sent', resend='true') }}">
+                        Resend email
+                </a>
+            </p>
         </div>
 
     </div>

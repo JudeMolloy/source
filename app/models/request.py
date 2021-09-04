@@ -33,6 +33,9 @@ class Request(db.Model):
     # one-to-one relationship with payment link.
     payment_link = db.relationship('PaymentLink', backref='request', lazy=True, uselist=False)
 
+    # many-to-one relationship with company.
+    company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
+
     # generates a unique payment link.
     def generate_payment_link(self):
         pass

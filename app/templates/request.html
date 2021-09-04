@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="flex place-content-center">
-    <img src="{{ url_for('static', filename='img/demo-logo.png')}}" alt="logo" class=" h-32 max-h-xs" />
+    <img src="{{ company.logo_url }}" alt="logo" class="w-32 mt-10" />
 </div>
 
 <div class="flex place-content-center mt-10 mx-4">
@@ -17,7 +17,7 @@
                     Request a product to be sourced
                 </h1>
                 <div class="text-xl font-semibold text-gray-500">
-                    Sourced by 1LUX
+                    Sourced by {{ company.name }}
                 </div>
             </div>
     
@@ -61,7 +61,7 @@
         </div>
       </div>
       <p class="text-sm text-gray-500">
-        Once you send a request 1LUX will attempt to source your product and get back to you.
+        Once you send a request {{ company.name }} will attempt to source your product and get back to you.
       </p>
     </form>
 </div>

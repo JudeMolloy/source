@@ -1,10 +1,19 @@
 import traceback
+import os
 
 from flask import render_template, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from werkzeug.utils import redirect
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, RequestForm, CustomerForm, CreatePaymentLinkForm, CompanyForm
+from app.forms import (
+    LoginForm,
+    RegistrationForm,
+    RequestForm,
+    CustomerForm,
+    CreatePaymentLinkForm,
+    CompanyForm,
+    EmailConfirmationCodeForm, 
+)
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models.user import User
 from app.models.confirmation import Confirmation
@@ -14,7 +23,31 @@ from app.models.usage_period import UsagePeriod
 from app.models.payment_link import PaymentLink
 from libs.email import MailgunException, Email
 from libs.otp import OTP
+from libs.upload import upload_file_to_bucket
 from deorators import check_email_confirmed
+
+AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
+AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
+
+# HELPER FUNCTIONS
+
+def company_access(user_id, company_endpoint):
+    company = Company.find_company_by_endpoint(company_endpoint)
+
+    if company:
+        # check if company is related to current user
+        if company.user.id == user_id:
+            return company
+
+    return False
+
+def is_company(company_endpoint):
+    company = Company.find_company_by_endpoint(company_endpoint)
+
+    if company:
+            return company
+
+    return False
 
 
 @app.route('/')
@@ -22,24 +55,29 @@ def index():
         return render_template('buy.html', title='Home')
 
 
-@app.route('/request',  methods = ['GET', 'POST'])
-def request():
-    form = RequestForm()
+@app.route('/<company_endpoint>/request',  methods = ['GET', 'POST'])
+def request_item(company_endpoint):
+    company = is_company(company_endpoint)
+    if company:
+        form = RequestForm()
 
-    if form.validate_on_submit():
-        form_data = {
-            'product_name': form.product_name.data,
-            'size': form.size.data,
-            'extra_info': form.extra_info.data,
-        }
-        session['product_request_data'] = form_data
-        return redirect(url_for('details'))
+        if form.validate_on_submit():
+            form_data = {
+                'product_name': form.product_name.data,
+                'size': form.size.data,
+                'extra_info': form.extra_info.data,
+            }
+            session['product_request_data'] = form_data
+            return redirect(url_for('details', company_endpoint=company_endpoint))
 
-    return render_template('request.html', form=form)
+        return render_template('request.html', form=form, company=company)
+    else:
+        return render_template("errors/404.html")
 
 
-@app.route('/details', methods = ['GET', 'POST'])
-def details():
+@app.route('/<company_endpoint>/details', methods = ['GET', 'POST'])
+def details(company_endpoint):
+    company = Company.find_company_by_endpoint(company_endpoint)
     form = CustomerForm()
 
     if form.validate_on_submit():
@@ -51,11 +89,12 @@ def details():
             full_name=form.full_name.data,
             email=form.email.data,
             phone=form.phone.data,
+            company_id=company.id,
         )
         product_request.save_to_db()
         return redirect(url_for('request_complete'))
 
-    return render_template('details.html', form=form)
+    return render_template('details.html', form=form, company=company)
 
 
 @app.route('/request-complete')
@@ -96,7 +135,7 @@ def register():
         try:
             user = User(forename=form.forename.data,
                         surname=form.surname.data,
-
+                        phone=form.phone.data,
                         email=form.email.data)
             user.set_password(form.password.data)
             user.save_to_db()
@@ -105,9 +144,10 @@ def register():
             confirmation = Confirmation(user.id)
             confirmation.save_to_db()
             user.send_confirmation_email()
+            login_user(user, remember=False)
 
             flash('Account created successfully!')
-            return redirect(url_for('login'))
+            return redirect(url_for('email_confirmation_sent'))
         except MailgunException as e:
             user.delete_from_db()  # Must delete user as they won't be able to confirm account.
             flash('Error sending confirmation email.')
@@ -120,64 +160,177 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/email-confirmation-sent')
+@app.route('/email-confirmation-sent', methods = ['GET', 'POST'])
+@login_required
 def email_confirmation_sent():
-    #name = current_user.full_name
-    #email = current_user.email
+    status = False
+    name = current_user.forename
+    email = current_user.email
 
-    return render_template("email-confirmation-sent.html")
+    resend = request.args.get('resend')
+    unconfirmed = request.args.get('unconfirmed')
+    print(resend)
+    if unconfirmed == "true":
+        message1 = "You must confirm your email to access this page."
+        message2 = "If you still have not recieved a confirmation code via email please contact support."
+    elif resend == "true":
+        if current_user.has_reached_confirmation_limit():
+            message1 = "We have already sent multiple confirmation emails."
+            message2 = "If you still have not recieved a confirmation code via email please contact support."
+        else:  
+            # resend the email
+            current_user.send_confirmation_email()
+            message1 = "A new email has been sent to {}. Please enter the code below to verify your account.".format(email)
+    else: 
+        message1 = "Thanks for creating an account {}!".format(name)
+        message2 = "A confirmation code has been sent to {}. Please enter the code below to verify your account.".format(email)
+    
+    form = EmailConfirmationCodeForm()
+
+    if form.validate_on_submit():
+        confirmation = current_user.most_recent_confirmation
+        otp = confirmation.otp
+        if form.otp.data == otp:
+            confirmation.confirmed = True
+            return redirect(url_for('create_company'))
+        else:
+            status = True
+    return render_template("email-confirmation-sent.html", form=form, message1=message1, message2=message2, incorrect=status)
+
 
 
 @app.route('/email-confirmation-re-sent')
+@login_required
 def resend_email_confirmation():
-    #email = current_user.email
-    #current_user.send_confirmation_email()
-    return render_template("email-confirmation-re-sent.html")
+    # resend the email
+    if current_user.has_reached_confirmation_limit():
+        message1 = "We have already sent multiple confirmation emails."
+        message2 = "Please wait 10 minutes to recieve the confirmation email."
+    else:  
+        current_user.send_confirmation_email()
+
+    status = False
+    name = current_user.full_name
+    email = current_user.email
+    form = EmailConfirmationCodeForm()
+
+    if form.validate_on_submit():
+        confirmation = current_user.most_recent_confirmation
+        otp = confirmation.otp
+        if form.otp.data == otp:
+            confirmation.confirmed = True
+            return redirect(url_for('create_company'))
+        else:
+            status = True
+    return render_template("email-confirmation-re-sent.html", form=form, name=name, email_address=email, incorrect=status)
 
 
 @app.route('/unconfirmed-email')
-@login_required
 def unconfirmed_email():
+    satus=False
+    name = current_user.full_name
     email = current_user.email
-    return render_template("unconfirmed-email.html")
+    form = EmailConfirmationCodeForm()
+
+    if form.validate_on_submit():
+        confirmation = current_user.most_recent_confirmation
+        otp = confirmation.otp
+        if form.otp.data == otp:
+            confirmation.confirmed = True
+            return redirect(url_for('create_company'))
+        else:
+            status = True
+    return render_template("email-confirmation-sent.html", form=form, name=name, email_address=email, incorrect=status)
+
+
+@app.route('/create-company', methods = ['GET', 'POST'])
+@login_required
+def create_company():
+    form = CompanyForm()
+
+    if form.validate_on_submit():
+        company = Company(
+            name=form.name.data,
+            endpoint=form.endpoint.data,
+            accept_cash=form.accept_cash.data,
+            twitter_url=form.twitter_url.data,
+            facebook_url=form.facebook_url.data,
+            instagram_url=form.instagram_url.data,
+            user=current_user,
+            )
+        company_logo = request.files["file"]
+        if company_logo:
+            try:
+                company_logo_url = upload_file_to_bucket(company_logo, AWS_COMPANY_LOGOS_FOLDER)
+            except:
+                traceback.print_exc()
+                return render_template("errors/500.html")
+
+            company.logo_url = company_logo_url
+
+        company.save_to_db()
+        return redirect(url_for('company_requests', company_endpoint=company.endpoint))
+        
+    return render_template("create-company.html", form=form)
+
 
 
 # ADMIN ROUTES (SAAS CUSTOMERS NOT MASTERO EMPLOYEES)
 
 @app.route('/<company_endpoint>/admin/requests')
+@login_required
 def company_requests(company_endpoint):
-    # code to find the relevant company and display only their information if the user matches it
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+        requests = Request.query.filter_by(company_id=company.id).all()
+        return render_template("admin/requests.html", company=company)
 
-    # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
-    requests = Request.query.all()
-    return render_template("admin/requests.html")
+    return render_template("errors/404.html")
 
 
 @app.route('/<company_endpoint>/admin/request/<request_id>')
+@login_required
 def company_request(company_endpoint, request_id):
-    # code to find the relevant company and display only their information if the user matches it
+    company = company_access(current_user.id, company_endpoint)
+    if company:
 
-    # THE FOLLOWING CODE IS UNSECURE AND NEEDS TO BE LINKED TO USER AND COMPANY
-    request = Request.query.first()
-    return render_template("admin/request.html", request=request)
+        request = Request.query.first()
+        return render_template("admin/request.html", request=request)
+
+    return render_template("errors/404.html")
 
 
-@app.route('/<company_endpoint>/admin/settings')
+@app.route('/<company_endpoint>/admin/settings', methods = ['GET', 'POST'])
 def company_settings(company_endpoint):
-    # code to find the relevant company and display only their information if the user matches it
-    
-    company = Company.find_company_by_endpoint(company_endpoint)
+    company = company_access(current_user.id, company_endpoint)
 
     if company:
-        # check if company is related to current user
-        if company.user.id == current_user.id:
+        form = CompanyForm(obj=company)
 
-            form = CompanyForm(company)
+        if form.validate_on_submit():
+            company.name=form.name.data
+            company.endpoint=form.endpoint.data
+            company.accept_cash=form.accept_cash.data
+            company.twitter_url=form.twitter_url.data
+            company.facebook_url=form.facebook_url.data
+            company.instagram_url=form.instagram_url.data
 
-            if form.validate_on_submit():
-                return 1
-            return render_template("admin/settings.html", form=form)
+            company_logo = request.files["file"]
+            if company_logo:
+                try:
+                    company_logo_url = upload_file_to_bucket(company_logo, AWS_COMPANY_LOGOS_FOLDER)
+                except:
+                    traceback.print_exc()
+                    return render_template("errors/500.html")
+
+                company.logo_url = company_logo_url
+
+            company.save_to_db()
+            return redirect(url_for('company_requests', company_endpoint=company.endpoint))
+            
+        return render_template("admin/settings.html", form=form, company=company)
     return render_template("errors/404.html")
+
 
 
 @app.route('/<company_endpoint>/admin/account-settings')

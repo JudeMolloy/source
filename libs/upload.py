@@ -38,7 +38,7 @@ def upload_file_to_bucket(file, folder):
 
     key = folder + "/" + unique_filename  # Uploads into specific folder to trigger the AWS Lambda function.
     s3.upload_file(
-        Bucket=str(AWS_GENERAL_BUCKET_NAME),
+        Bucket=str(AWS_BUCKET_NAME),
         Filename=unique_filename,
         Key=key
     )
