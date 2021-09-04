@@ -57,17 +57,6 @@
                         </div>
                     </div>
 
-                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            {{ form.price.label }}
-                        </label>
-                        <div class="mt-1 sm:mt-0 sm:col-span-2">
-                            {{ form.price(class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
-                            {% for error in form.price.errors %}
-                            <span style="color: red;">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
 
                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <label for="price" class="block text-sm font-medium text-gray-700">
@@ -88,158 +77,49 @@
                           </div>
                         </div>
                     </div>
-        
-                <div class="space-y-6 sm:space-y-5">
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="username" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    Custom Link
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <div class="max-w-lg flex rounded-md shadow-sm">
-                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                        mastero.co/
-                        </span>
-                        <input type="text" name="username" id="username" autocomplete="username" class="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2">
-                    </div>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                        This is what your unique link will look like. Your customers will use this link to access your services.<br>
-                        You must not uses spaces or any other special characters.
-                    </p>
-                    </div> 
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-center sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="photo" class="block text-sm font-medium text-gray-700">
-                    Logo
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <div class="flex items-center">
-                        <img src="https://www.gravatar.com/avatar/?d=identicon" class="h-12 w-12 rounded-full overflow-hidden bg-gray-100" />
-                        <button type="button" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Change
-                        </button>
-                    </div>
-                    <p class="mt-4 max-w-2xl text-sm text-gray-500">
-                        We recommend using a dark coloured logo with a transparent background.
-                    </p>
-                    </div>
-                </div>
 
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-center sm:border-t sm:border-gray-200 sm:pt-5">
-                    <div class="text-base font-medium text-gray-900 sm:text-sm sm:text-gray-700" id="label-email">
-                        Payment Options
-                    </div>
-
-                    <div class="relative flex items-start">
-                        <div class="flex items-center h-5">
-                            <input id="comments" name="comments" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <div>
+                            <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                {{ form.info.label }}
+                            </label>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                                Any extra information/description you'd like to give to the customer.
+                            </p>
                         </div>
-                        <div class="ml-3 text-sm">
-                            <label for="comments" class="font-medium text-gray-700">Cash Payments</label>
-                            <p class="text-gray-500">Would you like to have cash payments as an option for customers?</p>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.info(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                            {% for error in form.info.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                            {% endfor %}
                         </div>
                     </div>
-                </div>
-                    
-                </div>
-        
-            <div class="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
-                <div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Account Information
-                </h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    Use a permanent address where you can receive mail.
-                </p>
-                </div>
-                <div class="space-y-6 sm:space-y-5">
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    First name
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="first-name" id="first-name" autocomplete="given-name" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <div>
+                            <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                {{ form.deposit_percentage.label }}
+                            </label>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                                If the customer chooses to pay in cash, you can make them pay a deposit that's a percentage of the price.
+                                Please enter a number between 0 and 100. If you leave this blank or enter 0 then no deposit will be required for a cash purchase.
+                            </p>
+                        </div>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.deposit_percentage(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                            {% for error in form.deposit_percentage.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
         
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="last-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    Last name
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="last-name" id="last-name" autocomplete="family-name" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="email" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    Email address
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input id="email" name="email" type="email" autocomplete="email" class="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="country" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    Country / Region
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <select id="country" name="country" autocomplete="country" class="max-w-lg block focus:ring-indigo-500 focus:border-indigo-500 w-full shadow-sm sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                        <option>United States</option>
-                        <option>Canada</option>
-                        <option>Mexico</option>
-                    </select>
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="street-address" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    Street address
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="street-address" id="street-address" autocomplete="street-address" class="block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="city" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    City
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="city" id="city" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="state" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    State / Province
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="state" id="state" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-        
-                <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <label for="zip" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                    ZIP / Postal
-                    </label>
-                    <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input type="text" name="zip" id="zip" autocomplete="postal-code" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
-                    </div>
-                </div>
-                </div>
-            </div>
-        
-            </div>
+                
         
             <div class="pt-5">
             <div class="flex justify-end">
-                <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Cancel
-                </button>
+
                 <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Save
+                Send Payment Link
                 </button>
             </div>
             </div>

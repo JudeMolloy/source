@@ -92,14 +92,17 @@ def details(company_endpoint):
             company_id=company.id,
         )
         product_request.save_to_db()
-        return redirect(url_for('request_complete'))
+        return redirect(url_for('request_complete', company_endpoint=company_endpoint))
 
     return render_template('details.html', form=form, company=company)
 
 
-@app.route('/request-complete')
-def request_complete():
-    return render_template('request-complete.html')
+@app.route('/<company_endpoint>/request-complete')
+def request_complete(company_endpoint):
+    company = is_company(company_endpoint)
+    if company:
+        return render_template('request-complete.html', company=company)
+    return render_template("errors/404.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -108,7 +111,7 @@ def login():
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password. Please try again.')
             return redirect(url_for('login'))
@@ -283,7 +286,8 @@ def company_requests(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
         requests = Request.query.filter_by(company_id=company.id).all()
-        return render_template("admin/requests.html", company=company)
+        print(requests)
+        return render_template("admin/requests.html", company=company, requests=requests)
 
     return render_template("errors/404.html")
 
@@ -295,12 +299,14 @@ def company_request(company_endpoint, request_id):
     if company:
 
         request = Request.query.first()
-        return render_template("admin/request.html", request=request)
+        if request:
+            return render_template("admin/request.html", request=request, company=company)
 
     return render_template("errors/404.html")
 
 
 @app.route('/<company_endpoint>/admin/settings', methods = ['GET', 'POST'])
+@login_required
 def company_settings(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
 
@@ -342,11 +348,14 @@ def company_account_settings(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/create-payment-link')
 def company_create_payment_link(company_endpoint):
-    # code to find the relevant company and display only their information if the user matches it
+    company = company_access(current_user.id, company_endpoint)
 
-    form = CreatePaymentLinkForm()
+    if company:
 
-    return render_template("admin/create-payment-link.html", form=form)
+        form = CreatePaymentLinkForm()
+
+        return render_template("admin/create-payment-link.html", form=form, company=company)
+    return render_template("errors/404.html")
 
 
 @app.route('/test')
