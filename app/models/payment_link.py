@@ -17,9 +17,12 @@ class PaymentLink(db.Model):
 
     expire_at = db.Column(db.Integer, nullable=False)
 
+    datetime = db.Column(db.DateTime, default=datetime.utcnow())
+
     active = db.Column(db.Boolean, default=True, nullable=False)
     paid = db.Column(db.Boolean, default=False, nullable=False)
 
+    customer_full_name = db.Column(db.String(128))
     product_name = db.Column(db.String(128))
     size = db.Column(db.String(64))
     price = db.Column(db.Float, nullable=False)
@@ -28,7 +31,8 @@ class PaymentLink(db.Model):
     deposit_percentage = db.Column(db.Float)
 
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    # many-to-one relationship with company.
+    company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
 
     # one-to-one relationship with request.
     request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=True)

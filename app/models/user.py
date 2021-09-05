@@ -34,9 +34,6 @@ class User(UserMixin, db.Model):
 
     # one-to-many relationship with confirmation.
     confirmations = db.relationship("Confirmation", lazy="dynamic", cascade="all, delete-orphan")
-    
-    # one-to-many relationship with confirmation.
-    payment_links = db.relationship("PaymentLink", lazy="dynamic", cascade="all, delete-orphan")
 
     # one-to-many relationship with usage period.
     usage_periods = db.relationship("UsagePeriod", lazy="dynamic", cascade="all, delete-orphan")

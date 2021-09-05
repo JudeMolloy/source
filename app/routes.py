@@ -346,6 +346,18 @@ def company_account_settings(company_endpoint):
     return render_template("admin/account-settings.html")
 
 
+@app.route('/<company_endpoint>/admin/payment_links')
+@login_required
+def company_payment_links(company_endpoint):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+        payment_links = PaymentLink.query.filter_by(company_id=company.id).all()
+        print(payment_links)
+        return render_template("admin/payment-links.html", company=company, payment_links=payment_links)
+
+    return render_template("errors/404.html")
+
+
 @app.route('/<company_endpoint>/admin/create-payment-link')
 def company_create_payment_link(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
@@ -353,6 +365,29 @@ def company_create_payment_link(company_endpoint):
     if company:
 
         form = CreatePaymentLinkForm()
+
+        if form.validate_on_submit():
+            payment_link = PaymentLink(
+                customer_full_name=form.customer_full_name.data,
+                product_name=form.product_name.data,
+                size=form.size.data,
+                price=form.price.data,
+                info=form.info.data,
+                deposit_percentage=form.deposit_percentage.data,
+                company_id=company.id,
+                )
+            product_image = request.files["file"]
+            if product_image:
+                try:
+                    product_image_url = upload_file_to_bucket(company_logo, AWS_PRODUCT_IMG_FOLDER)
+                except:
+                    traceback.print_exc()
+                    return render_template("errors/500.html")
+
+                payment_link.product_image_url = product_image_url
+
+            payment_link.save_to_db()
+            return redirect(url_for('company_payment_links', company_endpoint=company.endpoint))
 
         return render_template("admin/create-payment-link.html", form=form, company=company)
     return render_template("errors/404.html")

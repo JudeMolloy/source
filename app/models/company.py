@@ -29,6 +29,9 @@ class Company(db.Model):
     # one-to-many relationship with request.
     requests = db.relationship("Request", lazy="dynamic", cascade="all, delete-orphan")
 
+    # one-to-many relationship with confirmation.
+    payment_links = db.relationship("PaymentLink", lazy="dynamic", cascade="all, delete-orphan")
+
     @classmethod
     def find_company_by_endpoint(cls, endpoint: str):
         return cls.query.filter_by(endpoint=endpoint).first()
