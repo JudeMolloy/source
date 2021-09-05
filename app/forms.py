@@ -81,7 +81,7 @@ class CompanyForm(FlaskForm):
 
 
 class CreatePaymentLinkForm(FlaskForm):
-    full_name = StringField('Customer Full Name*', validators=[DataRequired()])
+    customer_full_name = StringField('Customer Full Name*', validators=[DataRequired()])
     product_name = StringField('Product Name*', validators=[DataRequired()])
     size = StringField('Size*', validators=[DataRequired()])
     price = FloatField('Price*', validators=[DataRequired()])

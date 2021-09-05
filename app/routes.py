@@ -105,6 +105,16 @@ def request_complete(company_endpoint):
     return render_template("errors/404.html")
 
 
+@app.route('/<company_endpoint>/<payment_link_id>')
+def payment_link(company_endpoint, payment_link_id):
+    company = is_company(company_endpoint)
+    if company:
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        print(payment_link)
+        return render_template('buy.html', company=company, payment_link=payment_link)
+    return render_template("errors/404.html")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -298,9 +308,8 @@ def company_request(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
 
-        request = Request.query.first()
-        if request:
-            return render_template("admin/request.html", request=request, company=company)
+        request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
+        return render_template("admin/request.html", company=company, request=request)
 
     return render_template("errors/404.html")
 
@@ -358,13 +367,31 @@ def company_payment_links(company_endpoint):
     return render_template("errors/404.html")
 
 
-@app.route('/<company_endpoint>/admin/create-payment-link')
-def company_create_payment_link(company_endpoint):
+@app.route('/<company_endpoint>/admin/payment-link/<payment_link_id>')
+@login_required
+def company_payment_link(company_endpoint, payment_link_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        return render_template("admin/payment-link.html", company=company, payment_link=payment_link)
+
+    return render_template("errors/404.html")
+
+
+@app.route('/<company_endpoint>/admin/create-payment-link/<request_id>')
+def company_create_payment_link(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
 
     if company:
 
+        request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
+
         form = CreatePaymentLinkForm()
+
+        form.customer_full_name.data = request.full_name
+        form.product_name.data = request.product_name
+        form.size.data = request.size 
 
         if form.validate_on_submit():
             payment_link = PaymentLink(

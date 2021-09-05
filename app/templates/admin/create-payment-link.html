@@ -23,11 +23,11 @@
                 <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                            {{ form.full_name.label }}
+                            {{ form.customer_full_name.label }}
                         </label>
                         <div class="mt-1 sm:mt-0 sm:col-span-2">
-                            {{ form.full_name(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
-                            {% for error in form.full_name.errors %}
+                            {{ form.customer_full_name(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                            {% for error in form.customer_full_name.errors %}
                             <span style="color: red;">{{ error }}</span>
                             {% endfor %}
                         </div>

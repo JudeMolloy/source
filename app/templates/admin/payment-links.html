@@ -82,7 +82,7 @@
                                 {% endif %}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="" class="text-indigo-600 hover:text-indigo-900">See More</a>
+                                <a href="{{ url_for('company_payment_link', company_endpoint=commpany.endpoint, payment_link_id=payment_link.id ) }}" class="text-indigo-600 hover:text-indigo-900">See More</a>
                                 </td>
                             </tr>
                         {% endfor %}

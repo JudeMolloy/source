@@ -13,7 +13,7 @@ from app.models.payment_link import PaymentLink
 class Request(db.Model):
     __tablename__ = "requests"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(50), primary_key=True)
 
     # request part
     product_name = db.Column(db.String(128), index=True)
@@ -35,6 +35,10 @@ class Request(db.Model):
 
     # many-to-one relationship with company.
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = uuid4().hex
 
     # generates a unique payment link.
     def generate_payment_link(self):
