@@ -2,28 +2,27 @@
 
 {% block content %}
 
-<div class="flex place-content-center">
-    <img src="{{ url_for('static', filename='img/demo-logo.png')}}" alt="logo" class=" h-32 max-h-xs" />
-</div>
+{% include 'company-logo.html' %}
 
 <div class="flex place-content-center mt-10 mx-4">
     <div class="relative z-10 rounded-xl lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
     <div class="max-w-md md:w-48 relative">
-        <img src="{{ url_for('static', filename='img/demo-shoes.jpg')}}" alt="product image" class="relative md:absolute w-full h-80 md:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none" />
+        <img src="{{ payment_link.product_image_url }}" alt="product image" class="relative md:absolute w-full h-80 md:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none" />
     </div>
     <form class="flex-auto p-6">
+      {{ form.hidden_tag() }}
         <div class="block">
             <div class="flex flex-wrap mb-2">
                 <h1 class="flex-auto text-xl font-semibold">
-                  Nike Air Jordan 1 
+                  {{ payment_link.product_name }}
                 </h1>
                 <div class="text-xl font-semibold text-gray-500">
-                    £200.00
+                    £{{ payment_link.price }}
                 </div>
             </div>
     
         <div class="max-w-sm">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quasi, sapiente voluptatum. Error, ipsum molestiae.
+          {{ payment_link.info }}
         </div>
         <div class="w-full flex-none text-sm font-medium text-gray-500 mt-2 mb-2">
           Sourced specifically for you.
@@ -36,7 +35,7 @@
         </div>
       </div>
       <p class="text-sm text-gray-500">
-        Cash payments must be made on delivery.
+        Cash payment option {{ cash_payment_status }}.
       </p>
     </form>
 </div>

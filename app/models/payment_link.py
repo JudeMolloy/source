@@ -20,9 +20,12 @@ class PaymentLink(db.Model):
     active = db.Column(db.Boolean, default=True, nullable=False)
     paid = db.Column(db.Boolean, default=False, nullable=False)
 
+    product_name = db.Column(db.String(128))
+    size = db.Column(db.String(64))
     price = db.Column(db.Float, nullable=False)
     info = db.Column(db.String)
     product_image_url = db.Column(db.String)
+    deposit_percentage = db.Column(db.Float)
 
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)

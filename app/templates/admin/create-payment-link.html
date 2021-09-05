@@ -58,6 +58,26 @@
                     </div>
 
 
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-center sm:border-t sm:border-gray-200 sm:pt-5">
+                        <div>
+                            <label for="photo" class="block text-sm font-medium text-gray-700">
+                            Product Image
+                            </label>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                                You can upload an image of the product for the customer to see. This field is optional.
+                            </p>
+                        </div>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                        <div class="flex items-center">
+                            <input type="file" name="file" value="file" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        </div>
+                        <p class="mt-4 max-w-2xl text-sm text-gray-500">
+                            
+                        </p>
+                        </div>
+                    </div>
+
+
                     <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <label for="price" class="block text-sm font-medium text-gray-700">
                             {{ form.price.label }}
@@ -117,10 +137,7 @@
         
             <div class="pt-5">
             <div class="flex justify-end">
-
-                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Send Payment Link
-                </button>
+                {{ form.submit(class_="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") }}
             </div>
             </div>
         </form>
