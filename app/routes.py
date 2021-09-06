@@ -52,7 +52,8 @@ def is_company(company_endpoint):
 
 @app.route('/')
 def index():
-        return render_template('buy.html', title='Home')
+    form = RegistrationForm()
+    return render_template('landing/landing.html', form=form)
 
 
 @app.route('/<company_endpoint>/request',  methods = ['GET', 'POST'])
@@ -110,8 +111,14 @@ def payment_link(company_endpoint, payment_link_id):
     company = is_company(company_endpoint)
     if company:
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
-        print(payment_link)
-        return render_template('buy.html', company=company, payment_link=payment_link)
+        if company.accept_cash:
+            if payment_link.deposit_percentage != 0 and not None:
+                cash_payment_status = "available with {}% deposit".format(payment_link.deposit_percentage)
+            else:
+                cash_payment_status = "available"
+        else:
+            cash_payment_status = "unavailable"
+        return render_template('buy.html', company=company, payment_link=payment_link, cash_payment_status=cash_payment_status)
     return render_template("errors/404.html")
 
 
@@ -349,6 +356,7 @@ def company_settings(company_endpoint):
 
 
 @app.route('/<company_endpoint>/admin/account-settings')
+@login_required
 def company_account_settings(company_endpoint):
     # code to find the relevant company and display only their information if the user matches it
 
@@ -379,21 +387,36 @@ def company_payment_link(company_endpoint, payment_link_id):
     return render_template("errors/404.html")
 
 
-@app.route('/<company_endpoint>/admin/create-payment-link/<request_id>')
+@app.route('/<company_endpoint>/admin/delete-payment-link/<payment_link_id>')
+@login_required
+def company_delete_payment_link(company_endpoint, payment_link_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        payment_link.delete_from_db()
+        return redirect(url_for('company_payment_links', company=company))
+
+    return render_template("errors/404.html")
+
+
+@app.route('/<company_endpoint>/admin/create-payment-link/<request_id>', methods = ['GET', 'POST'])
+@login_required
 def company_create_payment_link(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
 
     if company:
 
-        request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
+        product_request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
 
         form = CreatePaymentLinkForm()
 
-        form.customer_full_name.data = request.full_name
-        form.product_name.data = request.product_name
-        form.size.data = request.size 
+        form.customer_full_name.data = product_request.full_name
+        form.product_name.data = product_request.product_name
+        form.size.data = product_request.size 
 
         if form.validate_on_submit():
+
             payment_link = PaymentLink(
                 customer_full_name=form.customer_full_name.data,
                 product_name=form.product_name.data,
@@ -402,11 +425,12 @@ def company_create_payment_link(company_endpoint, request_id):
                 info=form.info.data,
                 deposit_percentage=form.deposit_percentage.data,
                 company_id=company.id,
+                request_id=product_request.id
                 )
             product_image = request.files["file"]
             if product_image:
                 try:
-                    product_image_url = upload_file_to_bucket(company_logo, AWS_PRODUCT_IMG_FOLDER)
+                    product_image_url = upload_file_to_bucket(product_image, AWS_PRODUCT_IMG_FOLDER)
                 except:
                     traceback.print_exc()
                     return render_template("errors/500.html")
@@ -420,15 +444,40 @@ def company_create_payment_link(company_endpoint, request_id):
     return render_template("errors/404.html")
 
 
-@app.route('/test')
-def test():
-    otp = OTP.generate(6)
-    subject = "Email Confirmation - Mastero"
-    text = "Your one time password is: {}".format(otp)
-    html = '<html>Your account confirmation code is: {}<p>This code will expire in 30 minutes.</p></html>'.format(otp)
+@app.route('/<company_endpoint>/admin/edit-payment-link/<payment_link_id>', methods = ['GET', 'POST'])
+@login_required
+def company_edit_payment_link(company_endpoint, payment_link_id):
+    company = company_access(current_user.id, company_endpoint)
 
-    test = Email.send_email(['judemolloy07@hotmail.com'], subject, text, html)
+    if company:
 
-    print(test)
-    return("ok nice.")
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+
+        form = CreatePaymentLinkForm(obj=payment_link)
+
+        if form.validate_on_submit():
+
+            payment_link.customer_full_name=form.customer_full_name.data
+            payment_link.product_name=form.product_name.data
+            payment_link.size=form.size.data
+            payment_link.price=form.price.data
+            payment_link.info=form.info.data
+            payment_link.deposit_percentage=form.deposit_percentage.data
+            
+            product_image = request.files["file"]
+            if product_image:
+                try:
+                    product_image_url = upload_file_to_bucket(product_image, AWS_PRODUCT_IMG_FOLDER)
+                except:
+                    traceback.print_exc()
+                    return render_template("errors/500.html")
+
+                payment_link.product_image_url = product_image_url
+
+            payment_link.save_to_db()
+            return redirect(url_for('company_payment_links', company_endpoint=company.endpoint))
+
+        return render_template("admin/edit-payment-link.html", form=form, company=company, payment_link=payment_link)
+    return render_template("errors/404.html")
+
 

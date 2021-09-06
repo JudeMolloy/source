@@ -39,11 +39,10 @@ class PaymentLink(db.Model):
 
 
     # ensure when generating link that the correct company url is used.
-    def __init__(self, user_id: int, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = uuid4().hex
         self.expire_at = int(time()) + PAYMENT_LINK_EXPIRATION_DELTA
-        self.user_id = user_id
 
     @property
     def expired(self):

@@ -5,7 +5,7 @@
     <div class="container m-auto mt-10 px-5">
         <div class="flex-1 min-w-0 mb-4">
             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-            Create a payment link.
+            Edit payment link.
             </h2>
         </div>
         <form action="" method="post" class="space-y-8 divide-y divide-gray-200" enctype="multipart/form-data">
@@ -70,6 +70,7 @@
                         </div>
                         <div class="mt-1 sm:mt-0 sm:col-span-2">
                         <div class="flex items-center">
+                            <img src="{{ payment_link.product_image_url }}" class="h-24 w-24object-scale-down bg-gray-100" />
                             <input type="file" name="file" value="file" class="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         </div>
                         <p class="mt-4 max-w-2xl text-sm text-gray-500">
@@ -132,7 +133,7 @@
                             </p>
                         </div>
                         <div class="mt-1 sm:mt-0 sm:col-span-2">
-                            {{ form.deposit_percentage(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                            {{ form.deposit_percentage(class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
                             {% for error in form.deposit_percentage.errors %}
                             <span style="color: red;">{{ error }}</span>
                             {% endfor %}

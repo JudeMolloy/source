@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mastero</title>
+
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesheet.css')}}" />
+
+</head>
+<body>
+
+    {% include 'landing/hero.html' %}
+    {% include 'landing/features.html' %}
+    {% include 'landing/pricing.html' %}
+    {% include 'landing/cta.html' %}
+
+    {% block content %}
+
+    {% endblock %}
+
+    {% include 'mastero-footer.html' %}
+</body>
+</html>
+
+<span>Streamline product</span>
+                  <span class="text-indigo-400">sourcing</span>
+                  for your premium
+                  <span class="text-indigo-400">business</span>.
