@@ -87,7 +87,7 @@ class CreatePaymentLinkForm(FlaskForm):
     price = FloatField('Price*', validators=[DataRequired()])
     info = StringField('Info')
 
-    deposit_percentage = FloatField('Deposit Percentage', validators=[DataRequired()])
+    deposit_percentage = FloatField('Deposit Percentage*', validators=[DataRequired()])
 
     submit = SubmitField('Send Payment Link')
     

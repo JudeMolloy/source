@@ -17,7 +17,7 @@
                   {{ payment_link.product_name }}
                 </h1>
                 <div class="text-xl font-semibold text-gray-500">
-                    £{{ payment_link.price }}
+                    £{{'%0.2f'| format(payment_link.price|float)}}
                 </div>
             </div>
     
@@ -25,7 +25,7 @@
           {{ payment_link.info }}
         </div>
         <div class="w-full flex-none text-sm font-medium text-gray-500 mt-2 mb-2">
-          Sourced specifically for you.
+          This offer will expire on {{ payment_link.expire_at }}.
         </div>
       </div>
       <div class="flex space-x-3 mb-4 text-sm font-medium">

@@ -111,6 +111,8 @@ def payment_link(company_endpoint, payment_link_id):
     company = is_company(company_endpoint)
     if company:
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        if payment_link.expired:
+            return render_template('offer-expired.html', company=company) 
         if company.accept_cash:
             if payment_link.deposit_percentage != 0 and not None:
                 cash_payment_status = "available with {}% deposit".format(payment_link.deposit_percentage)
@@ -292,7 +294,6 @@ def create_company():
         return redirect(url_for('company_requests', company_endpoint=company.endpoint))
         
     return render_template("create-company.html", form=form)
-
 
 
 # ADMIN ROUTES (SAAS CUSTOMERS NOT MASTERO EMPLOYEES)

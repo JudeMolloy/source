@@ -1,0 +1,41 @@
+
+{% extends 'mastero-base.html' %}
+
+{% block content %}
+
+{% include 'mastero-logo.html' %}
+
+<div class="flex place-content-center mt-10 mx-4">
+  <div class="relative rounded-xl bg-white lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
+
+      <div class="w-full p-10">
+          <div class="flex flex-col mb-2 place-content-center">
+              <h1 class="flex flex-col text-xl font-semibold text-center">
+                  Accept Payments
+              </h1>
+              <div class="text-xl font-semibold text-gray-700 text-center my-4">
+                Mastero partners with Stripe for secure payments between you and your customers.
+              </div>
+              <div class="text-sm font-semibold text-gray-700 text-center">
+                If you'd like to accept payments online from your customers please follow the instructions below. Alternatively, if you'd just like to accept cash payments you can skip this section.
+              </div>
+              <p class="text-sm text-gray-500 text-center my-3">
+                1. Please click "Connect with Stripe" below.<br>
+                2. Fill out the brief form to create an account with Stripe and link it to Mastero.<br>
+                3. You'll then be redirected back to Mastero to finish off setting up your page.<br>
+              </p>
+
+              <a href="{{ account_link.url }}" class="stripe-connect flex m-auto mt-2"><span>Connect with</span></a>
+              <p class="m-auto text-center">or</p>
+              <button class="m-auto w-48 flex items-center justify-center rounded-md border border-gray-300 py-2 hover:bg-gray-50" type="button">Accept Cash Only</button>
+
+              <p class="text-xs text-gray-500 text-center m-auto mt-5 max-w-md">
+                *Mastero does not take have any transaction fees, however, Stripe takes a small fee (1.4% + 20p per transaction for European cards which goes directly to Stripe. See more about Stripe's pricing <a class="text-indigo-500" href="https://stripe.com/pricing">here</a>).
+              </p>
+          </div>
+</div>
+</div>
+</div>
+
+
+{% endblock %}
