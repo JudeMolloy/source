@@ -4,6 +4,7 @@ from db import db
 from uuid import uuid4
 from time import time
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db, login
@@ -34,11 +35,24 @@ class UsagePeriod(db.Model):
     def __repr__(self):
         return '<Usage Period - Start:{} End:{}>'.format(self.start.date, self.end.date)
 
+    def __init__(self, term, user_id):
+        self.start = datetime.utcnow()
+        if term == 'annually':
+            self.end = datetime.utcnow() + relativedelta(years=+1)
+        elif term == 'monthly':
+            self.end = datetime.utcnow() + relativedelta(months=+1)
+        self.email_count = 0
+        self.sms_count = 0
+        self.user_id = user_id
+
     @property
     def is_active(self):
         if not self.end:
-            return True
+            return False
         return self.end > datetime.utcnow()
+
+    def force_end(self):
+        self.end = datetime.utcnow()
 
     def save_to_db(self):
         db.session.add(self)

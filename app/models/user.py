@@ -10,6 +10,7 @@ from app import app, db, login
 from libs.email import Email
 from app.models.payment_link import PaymentLink
 from app.models.confirmation import Confirmation
+from app.models.usage_period import UsagePeriod
 from libs.otp import OTP
 
 
@@ -32,6 +33,10 @@ class User(UserMixin, db.Model):
 
     plan = db.Column(db.String(16), default='none')
 
+    stripe_customer_id = db.Column(db.String(64), index=True)
+    stripe_subscription_id = db.Column(db.String(64), index=True)
+    stripe_connected_account_id = db.Column(db.String(64), index=True)
+
     # one-to-many relationship with confirmation.
     confirmations = db.relationship("Confirmation", lazy="dynamic", cascade="all, delete-orphan")
 
@@ -45,12 +50,14 @@ class User(UserMixin, db.Model):
         return '<User: {} {}>'.format(self.forename, self.surname)
 
     @property
-    def active_subscription(self):
+    def full_name(self):
         return self.forename + " " + self.surname
 
     @property
-    def full_name(self):
-        return self.plan != 'none'
+    def active_membership(self):
+        if self.most_recent_usage_period:
+            return self.most_recent_usage_period.is_active
+        return False
 
     @property
     def most_recent_confirmation(self):
@@ -66,6 +73,17 @@ class User(UserMixin, db.Model):
     @property
     def is_confirmed(self):
         return self.most_recent_confirmation.confirmed
+
+    @property
+    def most_recent_usage_period(self):
+        return self.usage_periods.order_by(db.desc(UsagePeriod.end)).first()
+    
+    def update_subscription(self, term):
+        usage_period = UsagePeriod(term=term, user_id=self.id)
+        usage_period.save_to_db()
+
+    def end_subscription(self):
+        self.most_recent_usage_period.force_end()
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -84,6 +102,10 @@ class User(UserMixin, db.Model):
     @classmethod
     def find_by_email(cls, email: str):
         return cls.query.filter_by(email=email).first()
+
+    @classmethod
+    def find_by_stripe_subscription_id(cls, stripe_subscription_id: str):
+        return cls.query.filter_by(stripe_subscription_id=stripe_subscription_id).first()
 
     @classmethod
     def find_by_id(cls, _id: int):

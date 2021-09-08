@@ -13,6 +13,11 @@
               <h1 class="flex flex-col text-xl font-semibold text-center">
                   Accept Payments
               </h1>
+              {% if refresh == 'true' %}
+                <div class="text-xl font-semibold text-gray-700 text-center my-4">
+                  Stripe connect failed. Please try again.
+                </div>
+              {% endif %}
               <div class="text-xl font-semibold text-gray-700 text-center my-4">
                 Mastero partners with Stripe for secure payments between you and your customers.
               </div>
