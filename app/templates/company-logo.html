@@ -1,3 +1,5 @@
 <div class="flex place-content-center">
-    <img src="{{ company.logo_url }}" alt="logo" class="w-40 mt-10 object-scale-down" />
+    {% if company.logo_url %}
+        <img src="{{ company.logo_url }}" alt="logo" class="w-40 mt-10 object-scale-down" />
+    {% endif %}
 </div>

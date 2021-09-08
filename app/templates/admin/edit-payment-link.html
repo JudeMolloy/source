@@ -122,23 +122,25 @@
                         </div>
                     </div>
 
-                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                        <div>
-                            <label for="deposit-percentage" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                                {{ form.deposit_percentage.label }}
-                            </label>
-                            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                                If the customer chooses to pay in cash, you can make them pay a deposit that's a percentage of the price.
-                                Please enter a number between 0 and 100. If you leave this blank or enter 0 then no deposit will be required for a cash purchase.
-                            </p>
+                    {% if company.accept_cash %}
+                        <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                            <div>
+                                <label for="deposit-percentage" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                                    {{ form.deposit_percentage.label }}
+                                </label>
+                                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                                    If the customer chooses to pay in cash, you can make them pay a deposit that's a percentage of the price.
+                                    Please enter a number between 5 and 99 (minimum of 5% deposit which must exceed £1). If you leave this blank, no deposit will be required for a cash purchase.
+                                </p>
+                            </div>
+                            <div class="mt-1 sm:mt-0 sm:col-span-2">
+                                {{ form.deposit_percentage(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                                {% for error in form.deposit_percentage.errors %}
+                                <span style="color: red;">{{ error }}</span>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="mt-1 sm:mt-0 sm:col-span-2">
-                            {{ form.deposit_percentage(class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md rounded-md bg-white text-black py-1 px-2" ) }} <br>
-                            {% for error in form.deposit_percentage.errors %}
-                            <span style="color: red;">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
+                    {% endif %}
         
                 
         

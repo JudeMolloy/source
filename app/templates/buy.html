@@ -6,9 +6,11 @@
 
 <div class="flex place-content-center mt-10 mx-4">
     <div class="relative z-10 rounded-xl lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
-    <div class="max-w-md md:w-48 relative">
-        <img src="{{ payment_link.product_image_url }}" alt="product image" class="relative md:absolute w-full h-80 md:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none" />
-    </div>
+    {% if payment_link.product_image_url %}
+      <div class="max-w-md md:w-48 relative">
+          <img src="{{ payment_link.product_image_url }}" alt="product image" class="relative md:absolute w-full h-80 md:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none" />
+      </div>
+    {% endif %}
     <form class="flex-auto p-6">
       <!-- form.hidden_tag()  INSERT HERE-->
         <div class="block">
@@ -25,17 +27,43 @@
           {{ payment_link.info }}
         </div>
         <div class="w-full flex-none text-sm font-medium text-gray-500 mt-2 mb-2">
-          This offer will expire on {{ payment_link.expire_at }}.
+          This offer will expire on {{ payment_link.expire_at.strftime('%d %b %Y') }}.
         </div>
       </div>
       <div class="flex space-x-3 mb-4 text-sm font-medium">
         <div class="flex-auto flex space-x-3">
-          <button class="w-1/2 flex items-center justify-center rounded-md bg-black text-white py-2" type="submit">Buy now</button>
-          <button class="w-1/2 flex items-center justify-center rounded-md border border-gray-300 py-2" type="button">Decline Offer</button>
+          {% if cash_payment_status == 'available' %}
+          <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='online') }}" class="w-1/3 flex items-center justify-center rounded-md bg-black text-white py-2">
+            <button type="button">Pay Online</button>
+          </a>
+          <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='cash') }}" class="w-1/3 flex items-center justify-center rounded-md bg-gray-600 text-white py-2">
+            <button type="button">Pay Cash</button>
+          </a>
+          <a href="{{ url_for('decline_offer', company_endpoint=company.endpoint, payment_link_id=payment_link.id) }}" class="w-1/3 flex items-center justify-center rounded-md border border-gray-300 py-2">
+            <button type="button">Decline Offer</button>
+          </a>
+          {% elif cash_payment_status == 'unavailable' %}
+          <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='online') }}" class="w-1/3 flex items-center justify-center rounded-md bg-black text-white py-2">
+            <button type="button">Pay Online</button>
+          </a>
+            <a href="{{ url_for('decline_offer', company_endpoint=company.endpoint, payment_link_id=payment_link.id) }}" class="w-1/3 flex items-center justify-center rounded-md border border-gray-300 py-2">
+              <button type="button">Decline Offer</button>
+            </a>
+          {% else %}
+            <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='online') }}" class="w-1/3 flex items-center justify-center rounded-md bg-black text-white py-2">
+              <button type="button">Pay Online</button>
+            </a>
+            <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='deposit') }}" class="w-1/3 flex items-center justify-center rounded-md bg-gray-600 text-white py-2">
+              <button type="button">Pay Deposit</button>
+            </a>
+            <a href="{{ url_for('decline_offer', company_endpoint=company.endpoint, payment_link_id=payment_link.id) }}" class="w-1/3 flex items-center justify-center rounded-md border border-gray-300 py-2">
+              <button type="button">Decline Offer</button>
+            </a>
+          {% endif %}
         </div>
       </div>
       <p class="text-sm text-gray-500">
-        Cash payment option {{ cash_payment_status }}.
+        Cash payment {{ cash_payment_status }}.
       </p>
     </form>
 </div>

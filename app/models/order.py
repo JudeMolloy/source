@@ -18,11 +18,16 @@ class Order(db.Model):
     completion_datetime = db.Column(db.DateTime)
 
     paid = db.Column(db.Boolean, default=False, nullable=False)
-    deposit = db.Column(db.Boolean, default=False, nullable=False)
+    payment_type = db.Column(db.String(16), nullable=False)
+    payment_amount = db.Column(db.Float)
 
-    customer_full_name = db.Column(db.String(128))
-
-
+    full_name = db.Column(db.String(128))
+    email = db.Column(db.String(120), index=True)
+    address1 = db.Column(db.String(128))
+    address2 = db.Column(db.String(128))
+    city = db.Column(db.String(100))
+    country = db.Column(db.String(64))
+    postcode = db.Column(db.String(16), index=True)
 
     # many-to-one relationship with company.
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
@@ -36,21 +41,9 @@ class Order(db.Model):
         super().__init__(**kwargs)
         self.id = uuid4().hex
 
-    @property
-    def expired(self):
-        return time() > self.expire_at  # True if the payment_link has expired.
-
-
     @classmethod
     def find_by_id(cls, _id: str):
         return cls.query.filter_by(id=_id).first()
-
-    @property
-    def expired(self):
-        return time() > self.expire_at  # True if the confirmation has expired.
-
-    def deactivate(self):
-        self.active = False
 
     def customer_paid(self):
         self.paid = True

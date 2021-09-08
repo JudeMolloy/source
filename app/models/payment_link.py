@@ -4,10 +4,11 @@ from db import db
 from uuid import uuid4
 from time import time
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from app import app, db, login
 
 
-PAYMENT_LINK_EXPIRATION_DELTA = 604800  # 7 days (in seconds). Could possibly make this customisable.
+PAYMENT_LINK_EXPIRATION_DELTA = 7  # 7 days. Could possibly make this customisable.
 
 
 class PaymentLink(db.Model):
@@ -15,7 +16,7 @@ class PaymentLink(db.Model):
 
     id = db.Column(db.String(50), primary_key=True)
 
-    expire_at = db.Column(db.Integer, nullable=False)
+    expire_at = db.Column(db.DateTime, nullable=False)
 
     datetime = db.Column(db.DateTime, default=datetime.utcnow())
 
@@ -42,12 +43,11 @@ class PaymentLink(db.Model):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.id = uuid4().hex
-        self.expire_at = int(time()) + PAYMENT_LINK_EXPIRATION_DELTA
+        self.expire_at = datetime.utcnow() + relativedelta(days=+PAYMENT_LINK_EXPIRATION_DELTA)
 
     @property
     def expired(self):
         return time() > self.expire_at  # True if the payment_link has expired.
-
 
     @classmethod
     def find_by_id(cls, _id: str):
@@ -55,9 +55,9 @@ class PaymentLink(db.Model):
 
     @property
     def expired(self):
-        return time() > self.expire_at  # True if the confirmation has expired.
+        return datetime.utcnow() > self.expire_at  # True if the confirmation has expired.
 
-    def deactivate(self):
+    def decline_offer(self):
         self.active = False
 
     def customer_paid(self):

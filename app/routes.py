@@ -2,6 +2,7 @@ import traceback
 import os
 
 from flask import render_template, url_for, flash, request, session
+from datetime import datetime
 from werkzeug.urls import url_parse
 from werkzeug.utils import redirect
 from app import app, db
@@ -56,7 +57,7 @@ def index():
     return render_template('landing/landing.html', form=form)
 
 
-@app.route('/<company_endpoint>/request',  methods = ['GET', 'POST'])
+@app.route('/<company_endpoint>',  methods = ['GET', 'POST'])
 def request_item(company_endpoint):
     company = is_company(company_endpoint)
     if company:
@@ -120,6 +121,10 @@ def payment_link(company_endpoint, payment_link_id):
                 cash_payment_status = "available"
         else:
             cash_payment_status = "unavailable"
+        #print(datetime.fromtimestamp(payment_link.expire_at / 1e3))
+        #expiry_date = datetime.fromtimestamp(payment_link.expire_at / 1e3).strftime('%d %b %Y')
+        #print(expiry_date)
+
         return render_template('buy.html', company=company, payment_link=payment_link, cash_payment_status=cash_payment_status)
     return render_template("errors/404.html")
 
@@ -268,6 +273,12 @@ def unconfirmed_email():
 @app.route('/create-company', methods = ['GET', 'POST'])
 @login_required
 def create_company():
+    # check if user has already created a company.
+    user = User.query.filter_by(id=current_user.id).first()
+    company = Company.query.filter_by(user=user).first()
+    if company:
+        return redirect(url_for('company_settings', company_endpoint=company.endpoint))
+    
     form = CompanyForm()
 
     if form.validate_on_submit():
@@ -291,7 +302,7 @@ def create_company():
             company.logo_url = company_logo_url
 
         company.save_to_db()
-        return redirect(url_for('company_requests', company_endpoint=company.endpoint))
+        return redirect(url_for('company_settings', company_endpoint=company.endpoint))
         
     return render_template("create-company.html", form=form)
 
@@ -364,7 +375,7 @@ def company_account_settings(company_endpoint):
     return render_template("admin/account-settings.html")
 
 
-@app.route('/<company_endpoint>/admin/payment_links')
+@app.route('/<company_endpoint>/admin/payment-links')
 @login_required
 def company_payment_links(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
@@ -396,7 +407,7 @@ def company_delete_payment_link(company_endpoint, payment_link_id):
 
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
         payment_link.delete_from_db()
-        return redirect(url_for('company_payment_links', company=company))
+        return redirect(url_for('company_payment_links', company_endpoint=company_endpoint))
 
     return render_template("errors/404.html")
 

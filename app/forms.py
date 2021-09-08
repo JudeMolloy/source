@@ -2,7 +2,7 @@ import phonenumbers
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FloatField
 from wtforms.fields.html5 import TelField
-from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length
+from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length, NumberRange
 from wtforms.widgets import TextArea
 from app.models.user import User
 from flask_login import current_user
@@ -87,11 +87,22 @@ class CreatePaymentLinkForm(FlaskForm):
     price = FloatField('Price*', validators=[DataRequired()])
     info = StringField('Info')
 
-    deposit_percentage = FloatField('Deposit Percentage*', validators=[DataRequired()])
+    deposit_percentage = FloatField('Deposit Percentage', validators=[NumberRange(min=5, max=99)])
 
     submit = SubmitField('Send Payment Link')
     
 
 class EmailConfirmationCodeForm(FlaskForm):
     otp = TelField('Enter Code', validators=[DataRequired(), Length(max=6)])
+    submit = SubmitField('Continue')
+
+
+class BillingInfoForm(FlaskForm):
+    full_name = StringField('Full Name*', validators=[DataRequired()])
+    email = StringField('Email*', validators=[DataRequired(), Email(),  Length(max=120)])
+    address1 = StringField('Address 1*', validators=[DataRequired(),  Length(max=128)])
+    address2 = StringField('Address 2', validators=[Length(max=128)])
+    city = StringField('City/Town*', validators=[DataRequired(),  Length(max=100)])
+    country = StringField('Country*', validators=[DataRequired(),  Length(max=64)])
+    postcode = StringField('Postcode*', validators=[DataRequired(),  Length(max=16)])
     submit = SubmitField('Continue')

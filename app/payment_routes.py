@@ -8,7 +8,9 @@ from flask import render_template, url_for, flash, request, session
 from werkzeug.utils import redirect
 from app.models.payment_link import PaymentLink
 from app.models.user import User
+from app.models.request import Request
 from flask_login import current_user, login_required
+from app.forms import BillingInfoForm
 
 PRODUCTION = os.environ.get('PRODUCTION')
 
@@ -23,6 +25,67 @@ stripe.api_key = os.environ.get('STRIPE_API_KEY')
 @app.route('/select-plan')
 def select_plan():
     return render_template('payments/select-plan.html')
+
+
+@app.route('/<company_endpoint>/<payment_link_id>/<payment_type>/billing-info')
+def billing_info(company_endpoint, payment_link_id, payment_type):
+    company = is_company(company_endpoint)
+    if company:
+
+        form = BillingInfoForm()
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        request = Request.query.filter_by(payment_link=payment_link).first_or_404()
+
+        form.full_name.data = payment_link.customer_full_name
+        form.email.data = request.email
+
+        if form.validate_on_submit():
+
+            order = Order(
+                full_name=form.full_name.data,
+                email=form.email.data,
+                address1=form.address1.data,
+                address2=form.address2.data,
+                city=form.city.data,
+                country=form.country.data,
+                postcode=form.postcode.data,
+                payment_type = payment_type,
+                company_id=company.id,
+                payment_link_id=payment_link.id,
+                )
+            if payment_type == 'online':
+                order.payment_amount = payment_link.price
+                submit_button = 'Pay Online'
+            elif payment_type == 'deposit':
+                order.payment_amount = payment_link.price * (payment_link.deposit_percentage / 100)
+                submit_button = 'Pay Deposit'
+            else:
+                submit_button = 'Complete'
+            
+            order.save_to_db()
+
+            if order.payment_amount:
+                # go to checkout
+                return redirect(url_for('checkout', company_endpoint=company_endpoint, payment_link_id=payment_link_id, order_id=order.id))
+
+            return render_template("/payments/pay-cash.html")
+            
+        return render_template("payments/billing-info.html", form=form, company=company)
+    return render_template('errors/500.html')
+
+
+
+@app.route('/<company_endpoint>/<payment_link_id>/decline-offer')
+def decline_offer(company_endpoint, payment_link_id):
+    company = is_company(company_endpoint)
+    if company:
+
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        payment_link.decline_offer()
+        payment_link.save_to_db()
+            
+        return render_template("offer-declined.html")
+    return render_template('errors/500.html')
 
 
 @app.route('/subscribe')
@@ -81,7 +144,7 @@ def subscribe():
 
 @app.route('/welcome')
 def welcome():
-    return "Welcome to Mastero."
+    return render_template('payments/welcome.html')
 
 @app.route('/connect-with-stripe')
 @login_required
@@ -131,17 +194,20 @@ def stripe_connect_return():
 
 
 
-@app.route('/<company_endpoint>/<payment_link_id>/checkout')
-def checkout(company_endpoint, payment_link_id):
+@app.route('/<company_endpoint>/<payment_link_id>/<order_id>/checkout')
+def checkout(company_endpoint, payment_link_id, order_id):
     company = is_company(company_endpoint)
     if company:
 
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        order = Order.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
         stripe_connected_account_id = User.query.filter_by(company_id=company.id).first_or_404().stripe_connected_account_id
+
+        amount = order.payment_amount * 100
 
         intent = stripe.PaymentIntent.create(
             payment_method_types=['card'],
-            amount=1099,
+            amount=amount,
             currency='gbp',
             # ADD THIS WHEN STRIPE ACCOUNT HAS BEEN CONNECTED stripe_account='{{CONNECTED_STRIPE_ACCOUNT_ID}}',
             stripe_account=stripe_connected_account_id,
