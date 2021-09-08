@@ -21,6 +21,8 @@ STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID = os.environ.get('STRIPE_STANDARD_ANNUAL_
 stripe.api_key = os.environ.get('STRIPE_API_KEY')
 
 @app.route('/select-plan')
+def select_plan():
+    return render_template('payments/select-plan.html')
 
 
 @app.route('/subscribe')
@@ -31,16 +33,16 @@ def subscribe():
     if plan == 'standard-monthly':
         price_id = STRIPE_STANDARD_MONTHLY_PLAN_PRICE_ID
         plan = {
-            'description': 'Mastero standard monthly plan',
+            'description': 'Mastero Standard monthly plan',
             'monthly_price': 99,
             'billing_schedule': '',
         }
-    elif plan == 'standard-annual':
+    elif plan == 'standard-annually':
         price_id = STRIPE_STANDARD_ANNUAL_PLAN_PRICE_ID
         plan = {
-            'description': 'Mastero standard annual plan',
+            'description': 'Mastero Standard annual plan',
             'monthly_price': 89,
-            'billing_schedule': ' billed annually (89 x 12 = £1068).',
+            'billing_schedule': ' billed annually (89 x 12 = £1068)',
         }
     else:
         return render_template('errors/500.html')
@@ -55,7 +57,7 @@ def subscribe():
         current_user.stripe_customer_id = customer.id
 
     except Exception as e:
-        print(e.user_message)
+        print(e)
         return render_template('errors/500.html')
 
     try:
@@ -70,12 +72,16 @@ def subscribe():
             payment_behavior='default_incomplete',
             expand=['latest_invoice.payment_intent'],
         )
-        return jsonify(subscriptionId=subscription.id, clientSecret=subscription.latest_invoice.payment_intent.client_secret)
+        return render_template('payments/subscribe.html', subscriptionId=subscription.id, clientSecret=subscription.latest_invoice.payment_intent.client_secret, plan=plan, user=current_user)
 
     except Exception as e:
-        print(e.user_message)
+        print(e)
         return render_template('errors/500.html')
 
+
+@app.route('/welcome')
+def welcome():
+    return "Welcome to Mastero."
 
 @app.route('/connect-with-stripe')
 @login_required

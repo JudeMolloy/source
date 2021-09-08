@@ -1,15 +1,12 @@
 
-{% extends 'customer-base.html' %}
+{% extends 'mastero-base.html' %}
 
 {% block content %}
 
-{% include 'company-logo.html' %}
+{% include 'mastero-logo.html' %}
 
 <div class="flex place-content-center mt-10 mx-4">
-    <div class="relative z-10 rounded-xl lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
-    <div class="max-w-md md:w-48 relative">
-        <img src="{{ payment_link.product_image_url }}" alt="product image" class="relative md:absolute w-full h-80 md:h-full object-cover rounded-t-xl sm:rounded-l-xl sm:rounded-tr-none" />
-    </div>
+    <div class="relative z-10 rounded-xl lg:w-1/3 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
     <form class="flex-auto p-6" id="payment-form">
       <!-- form.hidden_tag()  INSERT HERE-->
         <div class="block">
@@ -22,8 +19,11 @@
                 </div>
             </div>
 
-            <p class="text-sm text-gray-500 text-center my-3">
-              You are subscribing to the {{ plan.description }} for £{{ plan.monthly_price }} per month{{ plan.billing_schedule }}. Your subscription will start now.
+            <p class="text-sm text-gray-500 text-center my-3 w-4/5 m-auto">
+              You are subscribing to the {{ plan.description }} for £{{ plan.monthly_price }} per month{{ plan.billing_schedule }}.
+              <br>
+              <br>
+              Your subscription will start now.
             </p>
 
             <div id="card-element" class="mt-4 text-md shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-md border-black w-full rounded-md rounded-md bg-gray-50 text-black py-1 px-2">

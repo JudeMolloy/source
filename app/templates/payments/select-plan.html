@@ -1,0 +1,87 @@
+
+{% extends 'mastero-base.html' %}
+
+{% block content %}
+
+{% include 'mastero-logo.html' %}
+
+<div class="flex place-content-center mt-10 mx-2">
+  <div class="relative rounded-xl bg-white lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
+
+      <div class="w-full py-10 md:px-10">
+          <div class="flex flex-col mb-2 place-content-center">
+              <h1 class="flex flex-col text-xl font-semibold text-center">
+                  Choose a Plan
+              </h1>
+              <div class="text-sm font-semibold text-gray-700 text-center my-4">
+                Select a plan that suits your needs. Choose annual or monthly billing for Mastero.
+              </div>
+              <div class="relative mt-6">
+                <div class="absolute inset-0 h-3/4"></div>
+                <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div class="max-w-md mx-auto space-y-4 lg:max-w-5xl lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0">
+                    <div class="flex flex-col rounded-lg shadow-lg overflow-hidden">
+                      <div class="px-6 py-8 bg-gray-800 sm:p-10 sm:pb-6">
+                        <div>
+                          <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600" id="tier-standard">
+                            Monthly
+                          </h3>
+                        </div>
+                        <div class="mt-4 flex items-baseline text-6xl font-extrabold text-white">
+                          £99
+                          <span class="ml-1 text-2xl font-medium text-gray-300">
+                            /mo
+                          </span>
+                        </div>
+                        <p class="mt-5 text-lg text-gray-300">
+                          The Mastero Standard plan billed monthly.
+                        </p>
+                      </div>
+                      <div class="flex-1 flex flex-col justify-between px-6 pt-6 pb-8 bg-gray-800 space-y-6 sm:p-10 sm:pt-6">
+                        <div class="rounded-md shadow">
+                          <a href="{{ url_for('subscribe', plan='standard-monthly') }}" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600" aria-describedby="tier-standard">
+                            Select Plan
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+          
+                    <div class="flex flex-col rounded-lg shadow-lg overflow-hidden">
+                      <div class="px-6 py-8 bg-gray-800 sm:p-10 sm:pb-6">
+                        <div>
+                          <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-600" id="tier-standard">
+                            Annually
+                          </h3>
+                        </div>
+                        <div class="mt-4 flex items-baseline text-6xl font-extrabold text-white">
+                          £89
+                          <span class="ml-1 text-2xl font-medium text-gray-300">
+                            /mo
+                          </span>
+                        </div>
+                        <p class="mt-5 text-lg text-gray-300">
+                          Save over 10% with the Mastero Standard plan billed annually!
+                        </p>
+                      </div>
+                      <div class="flex-1 flex flex-col justify-between px-6 pt-6 pb-8 bg-gray-800 space-y-6 sm:p-10 sm:pt-6">
+                        <div class="rounded-md shadow">
+                          <a href="{{ url_for('subscribe', plan='standard-annually') }}" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600" aria-describedby="tier-standard">
+                            Select Plan
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <p class="text-xs text-gray-500 text-center m-auto mt-5 max-w-md">
+                Looking for the Mastero Enterprise plan? Contact sales to learn more.
+              </p>
+          </div>
+</div>
+</div>
+</div>
+
+
+{% endblock %}
