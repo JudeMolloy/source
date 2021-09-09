@@ -16,6 +16,7 @@ class Order(db.Model):
     id = db.Column(db.String(50), primary_key=True)
 
     completion_datetime = db.Column(db.DateTime)
+    datetime = db.Column(db.DateTime, default=datetime.utcnow())
 
     paid = db.Column(db.Boolean, default=False, nullable=False)
     payment_type = db.Column(db.String(16), nullable=False)
@@ -28,6 +29,8 @@ class Order(db.Model):
     city = db.Column(db.String(100))
     country = db.Column(db.String(64))
     postcode = db.Column(db.String(16), index=True)
+
+    stripe_payment_intent_id = db.Column(db.String(128), index=True)
 
     # many-to-one relationship with company.
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
@@ -44,6 +47,10 @@ class Order(db.Model):
     @classmethod
     def find_by_id(cls, _id: str):
         return cls.query.filter_by(id=_id).first()
+
+    @classmethod
+    def find_by_stripe_payment_intent_id(cls, stripe_payment_intent_id: str):
+        return cls.query.filter_by(stripe_payment_intent_id=stripe_payment_intent_id).first()
 
     def customer_paid(self):
         self.paid = True

@@ -9,6 +9,7 @@ from werkzeug.utils import redirect
 from app.models.payment_link import PaymentLink
 from app.models.user import User
 from app.models.request import Request
+from app.models.order import Order
 from flask_login import current_user, login_required
 from app.forms import BillingInfoForm
 
@@ -27,7 +28,7 @@ def select_plan():
     return render_template('payments/select-plan.html')
 
 
-@app.route('/<company_endpoint>/<payment_link_id>/<payment_type>/billing-info')
+@app.route('/<company_endpoint>/<payment_link_id>/<payment_type>/billing-info',  methods = ['GET', 'POST'])
 def billing_info(company_endpoint, payment_link_id, payment_type):
     company = is_company(company_endpoint)
     if company:
@@ -63,6 +64,7 @@ def billing_info(company_endpoint, payment_link_id, payment_type):
                 submit_button = 'Complete'
             
             order.save_to_db()
+            print(order)
 
             if order.payment_amount:
                 # go to checkout
@@ -200,10 +202,13 @@ def checkout(company_endpoint, payment_link_id, order_id):
     if company:
 
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
-        order = Order.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        print(payment_link)
+        order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
+        print(order)
         stripe_connected_account_id = User.query.filter_by(company_id=company.id).first_or_404().stripe_connected_account_id
+        print(stripe_connected_account_id)
 
-        amount = order.payment_amount * 100
+        amount = int(order.payment_amount * 100)
 
         intent = stripe.PaymentIntent.create(
             payment_method_types=['card'],
@@ -214,8 +219,8 @@ def checkout(company_endpoint, payment_link_id, order_id):
             # Verify your integration in this guide by including this parameter
             metadata={'integration_check': 'accept_a_payment'},
         )
-
-        return render_template('payments/checkout.html', client_secret=intent.client_secret, company=company, payment_link=payment_link)
+        print(intent.id)
+        return render_template('payments/checkout.html', client_secret=intent.client_secret, company=company, payment_link=payment_link, order=order)
     return render_template("errors/404.html")
 
 
@@ -319,5 +324,18 @@ def stripe_webhook():
         # handle subscription cancelled automatically based
         # upon your subscription settings. Or if the user cancels it.
         print(data)
+    
+    if event_type == "payment_intent.succeeded":
+        payment_intent_id = data_object['id']
+        print("payment intent id: {}".format(payment_intent_id))
+
+        order = Order.find_by_stripe_payment_intent_id(payment_intent_id)
+
+        if order:
+            order.customer_paid()
+            order.save_to_db()
+        else:
+            print("Order not found")
+            return {'status': 'failed'}, 500
 
     return jsonify({'status': 'success'})

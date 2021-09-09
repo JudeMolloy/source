@@ -44,6 +44,12 @@ class Request(db.Model):
     def generate_payment_link(self):
         pass
 
+    def product_sourced(self):
+        self.sourced = True
+
+    def could_not_source(self):
+        self.active = False
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()

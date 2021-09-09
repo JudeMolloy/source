@@ -5,7 +5,7 @@
     <div class="container m-auto mt-10 mb-16 min-h-screen px-5">
         <div class="flex-1 min-w-0 mb-4">
             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-              Payment Links
+              Orders
             </h2>
           </div>
             <div class="flex flex-col justify-center ">
@@ -19,19 +19,19 @@
                             Customer Name
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Product Name
+                            Order Date
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Size
+                            Payment Type
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Price
+                            Amount
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date Sent
+                            Payment Status
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
+                            Order Status
                             </th>
                             <th scope="col" class="relative px-6 py-3">
                             <span class="sr-only">Edit</span>
@@ -39,60 +39,67 @@
                         </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                        {% for payment_link in payment_links %}
+                        {% for order in orders %}
                             <tr>
                                 <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ payment_link.customer_full_name }}
+                                        {{ order.full_name }}
                                     </div>
                                     <div class="text-sm text-gray-500">
+                                        {{ order.email }}
                                     </div>
                                     </div>
                                 </div>
                                 </td>
-                                <td class="px-6 py-4 ">
-                                <div class="text-sm text-gray-900">{{ payment_link.product_name }}</div>
-                                <div class="text-sm text-gray-500">
-                                    <p class="break-words"></p></div>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ order.datetime.strftime('%d %b %Y') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ payment_link.size }}
+                                    {{ order.payment_type|capitalize }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    £{{ payment_link.price }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ payment_link.datetime.strftime('%d %b %Y') }}
+                                    £{{ order.payment_amount }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                {% if payment_link.paid %}
+                                {% if order.paid %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                         Paid
                                     </span>
-                                {% elif (not payment_link.paid) and payment_link.active %}
+                                {% elif order.payment_type != 'online' and order.payment_type != 'deposit' %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        Pending
+                                        N/A
                                     </span>
                                 {% else %}
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                        Declined
+                                        Not Paid
+                                    </span>
+                                {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                {% if order.completion_datetime %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Complete
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Unfulfilled
                                     </span>
                                 {% endif %}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ url_for('company_payment_link', company_endpoint=company.endpoint, payment_link_id=payment_link.id ) }}" class="text-indigo-600 hover:text-indigo-900">See More</a>
+                                <a href="{{ url_for('company_request', company_endpoint=company.endpoint, request_id=request.id) }}" class="text-indigo-600 hover:text-indigo-900">See More</a>
                                 </td>
                             </tr>
                         {% endfor %}
             
                         </tbody>
                     </table>
-                    {% if not payment_links %}
+                    {% if not orders %}
                         <div class="flex w-full my-4 justify-center">
                             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate text-center">
-                            You currently have no payment links.
+                            You currently have no orders.
                             </h2>
                         </div>
                     {% endif %}

@@ -22,6 +22,7 @@ from app.models.request import Request
 from app.models.company import Company
 from app.models.usage_period import UsagePeriod
 from app.models.payment_link import PaymentLink
+from app.models.order import Order
 from libs.email import MailgunException, Email
 from libs.otp import OTP
 from libs.upload import upload_file_to_bucket
@@ -333,6 +334,20 @@ def company_request(company_endpoint, request_id):
     return render_template("errors/404.html")
 
 
+@app.route('/<company_endpoint>/admin/request/<request_id>/could-not-source')
+@login_required
+def company_could_not_source_request(company_endpoint, request_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
+        request.could_not_source()
+        request.save_to_db()
+        return redirect(url_for('company_request', company_endpoint=company.endpoint, request_id=request.id))
+
+    return render_template("errors/404.html")
+
+
 @app.route('/<company_endpoint>/admin/settings', methods = ['GET', 'POST'])
 @login_required
 def company_settings(company_endpoint):
@@ -450,6 +465,13 @@ def company_create_payment_link(company_endpoint, request_id):
                 payment_link.product_image_url = product_image_url
 
             payment_link.save_to_db()
+
+            # send sms text message and email.
+
+            # set request to sourced.
+            product_request.product_sourced()
+            product_request.save_to_db()
+
             return redirect(url_for('company_payment_links', company_endpoint=company.endpoint))
 
         return render_template("admin/create-payment-link.html", form=form, company=company)
@@ -492,4 +514,27 @@ def company_edit_payment_link(company_endpoint, payment_link_id):
         return render_template("admin/edit-payment-link.html", form=form, company=company, payment_link=payment_link)
     return render_template("errors/404.html")
 
+# COMPANY ORDERS
 
+@app.route('/<company_endpoint>/admin/orders')
+@login_required
+def company_orders(company_endpoint):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+        orders = Order.query.filter_by(company_id=company.id).all()
+        print(orders)
+        return render_template("admin/orders.html", company=company, orders=orders)
+
+    return render_template("errors/404.html")
+
+
+@app.route('/<company_endpoint>/admin/order/<order_id>')
+@login_required
+def company_order(company_endpoint, order_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
+        return render_template("admin/order.html", company=company, order=order)
+
+    return render_template("errors/404.html")
