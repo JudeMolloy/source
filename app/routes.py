@@ -31,6 +31,7 @@ from sqlalchemy import desc, asc
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
+ITEMS_PER_PAGE = 10
 
 # HELPER FUNCTIONS
 
@@ -316,10 +317,19 @@ def create_company():
 def company_requests(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
-        requests = Request.query.filter_by(company_id=company.id).order_by(Request.datetime.asc()).all()
-        requests.reverse()
+        page = request.args.get('page', 1, type=int)
+        requests = Request.query.filter_by(company_id=company.id).order_by(Request.datetime.desc()).paginate(
+        page, ITEMS_PER_PAGE, False)
+        print(requests.total)
+        next_url = url_for('company_requests', company_endpoint=company.endpoint, page=requests.next_num) if requests.has_next else None
+        prev_url = url_for('company_requests', company_endpoint=company.endpoint, page=requests.prev_num) if requests.has_prev else None
         print(requests)
-        return render_template("admin/requests.html", company=company, requests=requests)
+        from_number = ((page - 1) * ITEMS_PER_PAGE) + 1
+        to_number = min((page * ITEMS_PER_PAGE), requests.total)
+
+        return render_template("admin/requests.html", company=company, requests=requests.items,
+         prev_url=prev_url, next_url=next_url, total_requests=requests.total, from_number=from_number,
+          to_number=to_number)
 
     return render_template("errors/404.html")
 
