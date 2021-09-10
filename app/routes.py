@@ -31,7 +31,7 @@ from sqlalchemy import desc, asc
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
-ITEMS_PER_PAGE = 10
+ITEMS_PER_PAGE = 3
 
 # HELPER FUNCTIONS
 
@@ -318,17 +318,18 @@ def company_requests(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
         page = request.args.get('page', 1, type=int)
+
         requests = Request.query.filter_by(company_id=company.id).order_by(Request.datetime.desc()).paginate(
         page, ITEMS_PER_PAGE, False)
-        print(requests.total)
+
         next_url = url_for('company_requests', company_endpoint=company.endpoint, page=requests.next_num) if requests.has_next else None
         prev_url = url_for('company_requests', company_endpoint=company.endpoint, page=requests.prev_num) if requests.has_prev else None
-        print(requests)
+
         from_number = ((page - 1) * ITEMS_PER_PAGE) + 1
         to_number = min((page * ITEMS_PER_PAGE), requests.total)
 
         return render_template("admin/requests.html", company=company, requests=requests.items,
-         prev_url=prev_url, next_url=next_url, total_requests=requests.total, from_number=from_number,
+         prev_url=prev_url, next_url=next_url, total_items=requests.total, from_number=from_number,
           to_number=to_number)
 
     return render_template("errors/404.html")
@@ -407,9 +408,21 @@ def company_account_settings(company_endpoint):
 def company_payment_links(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
-        payment_links = PaymentLink.query.filter_by(company_id=company.id).all()
-        print(payment_links)
-        return render_template("admin/payment-links.html", company=company, payment_links=payment_links)
+
+        page = request.args.get('page', 1, type=int)
+        
+        payment_links = PaymentLink.query.filter_by(company_id=company.id).order_by(PaymentLink.datetime.desc()).paginate(
+        page, ITEMS_PER_PAGE, False)
+
+        next_url = url_for('company_payment_links', company_endpoint=company.endpoint, page=payment_links.next_num) if payment_links.has_next else None
+        prev_url = url_for('company_payment_links', company_endpoint=company.endpoint, page=payment_links.prev_num) if payment_links.has_prev else None
+
+        from_number = ((page - 1) * ITEMS_PER_PAGE) + 1
+        to_number = min((page * ITEMS_PER_PAGE), payment_links.total)
+
+        return render_template("admin/payment-links.html", company=company, payment_links=payment_links.items,
+         prev_url=prev_url, next_url=next_url, total_items=payment_links.total, from_number=from_number,
+          to_number=to_number)
 
     return render_template("errors/404.html")
 
@@ -533,9 +546,21 @@ def company_edit_payment_link(company_endpoint, payment_link_id):
 def company_orders(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
-        orders = Order.query.filter_by(company_id=company.id).all()
-        print(orders)
-        return render_template("admin/orders.html", company=company, orders=orders)
+
+        page = request.args.get('page', 1, type=int)
+        
+        orders = Order.query.filter_by(company_id=company.id).order_by(Order.datetime.desc()).paginate(
+        page, ITEMS_PER_PAGE, False)
+
+        next_url = url_for('company_orders', company_endpoint=company.endpoint, page=orders.next_num) if orders.has_next else None
+        prev_url = url_for('company_orders', company_endpoint=company.endpoint, page=orders.prev_num) if orders.has_prev else None
+
+        from_number = ((page - 1) * ITEMS_PER_PAGE) + 1
+        to_number = min((page * ITEMS_PER_PAGE), orders.total)
+
+        return render_template("admin/orders.html", company=company, orders=orders.items,
+         prev_url=prev_url, next_url=next_url, total_items=orders.total, from_number=from_number,
+          to_number=to_number)
 
     return render_template("errors/404.html")
 
@@ -547,6 +572,7 @@ def company_order(company_endpoint, order_id):
     if company:
 
         order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
-        return render_template("admin/order.html", company=company, order=order)
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, order_id=order.id).first_or_404()
+        return render_template("admin/order.html", company=company, order=order, payment_link=payment_link)
 
     return render_template("errors/404.html")

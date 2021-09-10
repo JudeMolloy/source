@@ -38,6 +38,8 @@ class PaymentLink(db.Model):
     # one-to-one relationship with request.
     request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=True)
 
+    # one-to-one relationship with order.
+    order_id = db.relationship('Order', backref='payment_link', lazy=True, uselist=False)
 
     # ensure when generating link that the correct company url is used.
     def __init__(self, **kwargs):

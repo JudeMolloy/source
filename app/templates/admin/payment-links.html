@@ -89,6 +89,31 @@
             
                         </tbody>
                     </table>
+                    <nav class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" aria-label="Pagination">
+                        <div class="hidden sm:block">
+                          <p class="text-sm text-gray-700">
+                            Showing
+                            <span class="font-medium">{{ from_number }}</span>
+                            to
+                            <span class="font-medium">{{ to_number }}</span>
+                            of
+                            <span class="font-medium">{{ total_items }}</span>
+                            results
+                          </p>
+                        </div>
+                        <div class="flex-1 flex justify-between sm:justify-end">
+                            {% if prev_url %}
+                                <a href="{{ prev_url }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Previous
+                                </a>
+                            {% endif %}
+                            {% if next_url %}
+                                <a href="{{ next_url }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Next
+                                </a>
+                            {% endif %}
+                        </div>
+                      </nav>
                     {% if not payment_links %}
                         <div class="flex w-full my-4 justify-center">
                             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate text-center">
