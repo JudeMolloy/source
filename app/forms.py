@@ -79,6 +79,11 @@ class CompanyForm(FlaskForm):
 
     submit = SubmitField('Save')
 
+    def validate_endpoint(self, endpoint):
+        company = Company.query.filter_by(endpoint=endpoint.data).first()
+        if company is not None:
+            raise ValidationError('mastero.co/{} is already taken. Please use a different endpoint.'.format(endpoint.data))
+
 
 class CreatePaymentLinkForm(FlaskForm):
     customer_full_name = StringField('Customer Full Name*', validators=[DataRequired()])

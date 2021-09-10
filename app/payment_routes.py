@@ -21,6 +21,10 @@ STRIPE_STANDARD_ANNUAL_PLAN_PRICE_ID = os.environ.get('STRIPE_STANDARD_ANNUAL_PL
 STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID = os.environ.get('STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID')
 STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID = os.environ.get('STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID')
 
+STRIPE_CONNECT_REFRESH_URL = os.environ.get('STRIPE_CONNECT_REFRESH_URL')
+STRIPE_CONNECT_RETURN_URL = os.environ.get('STRIPE_CONNECT_RETURN_URL')
+
+stripe.api_key = os.environ.get('STRIPE_API_KEY')
 
 @app.route('/select-plan')
 def select_plan():
@@ -90,6 +94,7 @@ def decline_offer(company_endpoint, payment_link_id):
 
 
 @app.route('/subscribe')
+@login_required
 def subscribe():
 
     # set the price id for selected plan
@@ -164,14 +169,14 @@ def connect_with_stripe():
         user = User.find_by_id(current_user.id)
         user.stripe_connected_account_id = account.id
         user.save_to_db()
-        if PRODUCTION!=1:
-            return redirect(url_for('index'))
+        if PRODUCTION != 1:
+            return redirect(url_for('create_company'))
         if account:
             account_link = stripe.AccountLink.create(
                 account=account.id,
-                refresh_url='http://localhost:5000/connect-with-stripe?refresh=true',
-                return_url='http://localhost:5000/stripe-connect-return',
-                type='account_onboarding',
+                refresh_url=STRIPE_CONNECT_REFRESH_URL,
+                return_url=STRIPE_CONNECT_RETURN_URL,
+                type='account_onboarding'
             )
             print(account_link)
             return render_template('payments/connect-with-stripe.html', account_link=account_link, refresh=refresh)
@@ -183,11 +188,18 @@ def connect_with_stripe():
 
 
 @app.route('/stripe-connect-return')
+@login_required
 def stripe_connect_return():
     # check details submitted and charges enabled. also maybe the
     # check card_payments is active.
 
-    account = stripe.Account.retrieve('acct_1JXCTwDIRb4p7Jz9')
+    account = stripe.Account.retrieve(current_user.stripe_connected_account_id)
+    print(account)
+    # not sure if this needs to be string true or acutal boolean. Must check
+    print(account['details_submitted'])
+    if account['details_submitted'] == True:
+        print("bool")
+
 
     #account = stripe.Account.retrieve(current_user.stripe_connected_account_id)
     print(account)
@@ -201,11 +213,11 @@ def checkout(company_endpoint, payment_link_id, order_id):
     if company:
 
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
-        print(payment_link)
+        
         order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
-        print(order)
+
         stripe_connected_account_id = User.query.filter_by(company_id=company.id).first_or_404().stripe_connected_account_id
-        print(stripe_connected_account_id)
+
 
         amount = int(order.payment_amount * 100)
 

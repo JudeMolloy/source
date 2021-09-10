@@ -119,7 +119,8 @@ def payment_link(company_endpoint, payment_link_id):
     if company:
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
         if payment_link.expired:
-            return render_template('offer-expired.html', company=company) 
+            return render_template('payments/expired.html', company=company, payment_link=payment_link) 
+        return render_template('payments/expired.html', company=company, payment_link=payment_link)
         if company.accept_cash:
             if payment_link.deposit_percentage != 0 and not None:
                 cash_payment_status = "available with {}% deposit".format(payment_link.deposit_percentage)
@@ -226,7 +227,7 @@ def email_confirmation_sent():
         otp = confirmation.otp
         if form.otp.data == otp:
             confirmation.confirmed = True
-            return redirect(url_for('create_company'))
+            return redirect(url_for('select_plan'))
         else:
             status = True
     return render_template("email-confirmation-sent.html", form=form, message1=message1, message2=message2, incorrect=status)
