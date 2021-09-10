@@ -55,6 +55,12 @@ class Order(db.Model):
     def customer_paid(self):
         self.paid = True
 
+    def fulfill(self):
+        self.completion_datetime = datetime.utcnow()
+
+    def unfulfill(self):
+        self.completion_datetime = None
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()

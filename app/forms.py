@@ -2,7 +2,7 @@ import phonenumbers
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FloatField
 from wtforms.fields.html5 import TelField
-from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length, NumberRange
+from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
 from app.models.user import User
 from flask_login import current_user
@@ -87,7 +87,7 @@ class CreatePaymentLinkForm(FlaskForm):
     price = FloatField('Price*', validators=[DataRequired()])
     info = StringField('Info')
 
-    deposit_percentage = FloatField('Deposit Percentage', validators=[NumberRange(min=5, max=99)])
+    deposit_percentage = FloatField('Deposit Percentage', validators=[Optional(), NumberRange(min=5, max=99)])
 
     submit = SubmitField('Send Payment Link')
     

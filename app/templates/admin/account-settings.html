@@ -1,0 +1,151 @@
+{% extends 'admin/admin-base.html' %}
+
+
+{% block content %}
+    <div class="container m-auto mt-10 px-5">
+        <div class="flex-1 min-w-0 mb-4">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Account Settings
+            </h2>
+        </div>
+        <form action="" method="post" class="space-y-8 divide-y divide-gray-200" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+            <div>
+                <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Account
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Manage your Mastero account.
+                </p>
+                </div>
+
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.forename.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.forename(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                        </div>
+                        {% for error in form.forename.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.surname.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.surname(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                        </div>
+                        {% for error in form.surname.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+        
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.email.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.email(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                        </div>
+                        {% for error in form.email.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.phone.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.phone(size="16", id="phone", class_="appearance-none block bg-white w-full px-3 py-2 border border-gray-300 focus:ring-black focus:border-black rounded-md shadow-sm placeholder-gray-400 sm:text-sm" ) }}
+                        </div>
+                        {% for error in form.phone.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.password.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.password(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                        </div>
+                        {% for error in form.password.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-6 sm:mt-5space-y-6 sm:space-y-5">
+                    <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                        <label for="first-name" class="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                            {{ form.password2.label }}
+                        </label>
+                        <div class="mt-1 sm:mt-0 sm:col-span-2">
+                            {{ form.password2(size=64, class_="shadow-sm border border-gray-300 focus:ring-black focus:border-black block sm:text-sm border-black w-full rounded-md bg-white text-black py-1 px-2" ) }} <br>
+                        </div>
+                        {% for error in form.password2.errors %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                
+        
+            </div>
+        
+            <div class="pt-5">
+            <div class="flex justify-end">
+                <input class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="submit" name="submit" type="submit" value="Update Info">
+            </div>
+            </div>
+        </form>
+
+        <div class="flex-1 min-w-0 mb-4 pt-4">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate mb-4">
+            Billing Settings
+            </h2>
+            <a href="{{ stripe_portal_url }}">
+                <button type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Billing Settings
+                </button>
+            </a>
+        </div>
+
+    </div>
+    
+
+    <script nonce="">
+        var wtf_phone_field = document.getElementById('phone');
+        wtf_phone_field.style.position = 'absolute';
+        wtf_phone_field.style.top = '-9999px';
+        wtf_phone_field.style.left = '-9999px';
+        wtf_phone_field.parentElement.insertAdjacentHTML('beforeend', '<input type="tel" id="_phone" class=" sm:col-span-2 appearance-none block bg-white w-full px-3 py-2 border border-gray-300 focus:ring-black focus:border-black rounded-md shadow-sm placeholder-gray-400 sm:text-sm">');
+        var fancy_phone_field = document.getElementById('_phone');
+        var fancy_phone_iti = window.intlTelInput(fancy_phone_field, {
+            separateDialCode: true,
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/16.0.4/js/utils.js",
+        });
+        fancy_phone_iti.setNumber(wtf_phone_field.value);
+        fancy_phone_field.addEventListener('blur', function() {
+            wtf_phone_field.value = fancy_phone_iti.getNumber();
+        });
+      </script>
+
+{% endblock %}

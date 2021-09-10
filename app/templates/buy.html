@@ -43,10 +43,10 @@
             <button type="button">Decline Offer</button>
           </a>
           {% elif cash_payment_status == 'unavailable' %}
-          <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='online') }}" class="sm:w-1/3 flex items-center justify-center rounded-md bg-black text-white py-2">
+          <a href="{{ url_for('billing_info', company_endpoint=company.endpoint, payment_link_id=payment_link.id, payment_type='online') }}" class="sm:w-1/2 flex items-center justify-center rounded-md bg-black text-white py-2">
             <button type="button">Pay Online</button>
           </a>
-            <a href="{{ url_for('decline_offer', company_endpoint=company.endpoint, payment_link_id=payment_link.id) }}" class="w-1/3 flex items-center justify-center rounded-md border border-gray-300 py-2">
+            <a href="{{ url_for('decline_offer', company_endpoint=company.endpoint, payment_link_id=payment_link.id) }}" class="w-1/2 flex items-center justify-center rounded-md border border-gray-300 py-2">
               <button type="button">Decline Offer</button>
             </a>
           {% else %}

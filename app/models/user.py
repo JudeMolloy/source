@@ -1,4 +1,4 @@
-from flask import url_for, request
+from flask import url_for, request, render_template
 
 from db import db
 from uuid import uuid4
@@ -95,7 +95,7 @@ class User(UserMixin, db.Model):
         otp = self.most_recent_confirmation.otp
         subject = "Email Confirmation Code - Mastero"
         text = "Your one time password is: {}".format(otp)
-        html = '<html>Your account confirmation code is: {}<p>This code will expire in 30 minutes.</p></html>'.format(otp)
+        html = render_template('email/confirmation-code.html', otp=otp)
 
         return Email.send_email([self.email], subject, text, html)
 

@@ -1,5 +1,6 @@
 import traceback
 import os
+import stripe
 
 from flask import render_template, url_for, flash, request, session
 from datetime import datetime
@@ -27,11 +28,13 @@ from libs.email import MailgunException, Email
 from libs.otp import OTP
 from libs.upload import upload_file_to_bucket
 from deorators import check_email_confirmed
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, func
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
 ITEMS_PER_PAGE = 3
+
+stripe.api_key = os.environ.get('STRIPE_API_KEY')
 
 # HELPER FUNCTIONS
 
@@ -204,13 +207,14 @@ def email_confirmation_sent():
         message1 = "You must confirm your email to access this page."
         message2 = "If you still have not recieved a confirmation code via email please contact support."
     elif resend == "true":
-        if current_user.has_reached_confirmation_limit():
+        if current_user.has_reached_confirmation_limit:
             message1 = "We have already sent multiple confirmation emails."
             message2 = "If you still have not recieved a confirmation code via email please contact support."
         else:  
             # resend the email
             current_user.send_confirmation_email()
             message1 = "A new email has been sent to {}. Please enter the code below to verify your account.".format(email)
+            message2 = ""
     else: 
         message1 = "Thanks for creating an account {}!".format(name)
         message2 = "A confirmation code has been sent to {}. Please enter the code below to verify your account.".format(email)
@@ -312,6 +316,34 @@ def create_company():
 
 # ADMIN ROUTES (SAAS CUSTOMERS NOT MASTERO EMPLOYEES)
 
+@app.route('/<company_endpoint>/admin')
+@login_required
+def company_dashboard(company_endpoint):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+        total_requests = Request.query.filter_by(company_id=company.id).count()
+        total_payment_links = PaymentLink.query.filter_by(company_id=company.id).count()
+        total_orders = Order.query.filter_by(company_id=company.id).count()
+
+        total_revenue =  sum(order.payment_amount for order in Order.query.filter_by(company_id=company.id).filter((Order.completion_datetime != None) | (Order.paid == True and Order.payment_type == 'online')).all())
+        print(total_revenue)
+        
+        # avoids division by zero error
+        if total_requests > 0:
+            source_percentage = (Request.query.filter_by(company_id=company.id, sourced=True).count() / total_requests) * 100
+        else:
+            source_percentage = 0
+        print(source_percentage)
+
+        total_orders_fulfilled = Order.query.filter_by(company_id=company.id).filter(Order.completion_datetime != None).count()
+        print(total_orders_fulfilled)
+        return render_template('admin/dashboard.html', company=company, total_requests=total_requests,
+         total_payment_links=total_payment_links, total_orders=total_orders,
+          total_revenue=total_revenue, source_percentage=source_percentage,
+          total_orders_fulfilled=total_orders_fulfilled)
+
+    return render_template("errors/404.html")
+
 @app.route('/<company_endpoint>/admin/requests')
 @login_required
 def company_requests(company_endpoint):
@@ -394,13 +426,37 @@ def company_settings(company_endpoint):
     return render_template("errors/404.html")
 
 
-
-@app.route('/<company_endpoint>/admin/account-settings')
+@app.route('/<company_endpoint>/admin/account-settings', methods = ['GET', 'POST'])
 @login_required
 def company_account_settings(company_endpoint):
-    # code to find the relevant company and display only their information if the user matches it
+    company = company_access(current_user.id, company_endpoint)
 
-    return render_template("admin/account-settings.html")
+    if company:
+        form = RegistrationForm(obj=current_user)
+
+        if form.validate_on_submit():
+            current_user.forename=form.forename.data
+            current_user.surname=form.surname.data
+            current_user.email=form.email.data
+            current_user.phone=form.phone.data
+
+            current_user.set_password(form.password.data)
+
+
+            current_user.save_to_db()
+            return redirect(url_for('company_dashboard', company_endpoint=company.endpoint))
+        
+        try:
+            stripe_portal_session = stripe.billing_portal.Session.create(
+                customer=current_user.stripe_customer_id,
+                return_url=url_for('company_account_settings', company_endpoint=company.endpoint),
+            )
+        except:
+            traceback.print_exc()
+            return render_template("errors/500.html")
+            
+        return render_template("admin/account-settings.html", form=form, company=company, stripe_portal_url=stripe_portal_session.url)
+    return render_template("errors/404.html")
 
 
 @app.route('/<company_endpoint>/admin/payment-links')
@@ -572,7 +628,38 @@ def company_order(company_endpoint, order_id):
     if company:
 
         order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
-        payment_link = PaymentLink.query.filter_by(company_id=company.id, order_id=order.id).first_or_404()
+        payment_link = PaymentLink.query.filter_by(company_id=company.id, order=order).first_or_404()
         return render_template("admin/order.html", company=company, order=order, payment_link=payment_link)
 
     return render_template("errors/404.html")
+
+
+@app.route('/<company_endpoint>/admin/order/<order_id>/fulfill-order')
+@login_required
+def company_fulfill_order(company_endpoint, order_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
+        order.fulfill()
+        order.save_to_db()
+        return redirect(url_for('company_order', company_endpoint=company.endpoint, order_id=order.id))
+
+    return render_template("errors/404.html")
+
+@app.route('/<company_endpoint>/admin/order/<order_id>/unfulfill-order')
+@login_required
+def company_unfulfill_order(company_endpoint, order_id):
+    company = company_access(current_user.id, company_endpoint)
+    if company:
+
+        order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
+        order.unfulfill()
+        order.save_to_db()
+        return redirect(url_for('company_order', company_endpoint=company.endpoint, order_id=order.id))
+
+    return render_template("errors/404.html")
+
+@app.route('/email')
+def email():
+    return render_template('email/confirmation-code.html', otp="238383")

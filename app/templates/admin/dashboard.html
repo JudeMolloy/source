@@ -1,0 +1,77 @@
+{% extends 'admin/admin-base.html' %}
+
+
+{% block content %}
+    <div class="container m-auto mt-10 mb-16 min-h-screen px-5">
+        <div class="flex-1 min-w-0 mb-4">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+              {{ company.name }}
+            </h2>
+          </div>
+            <div class="flex flex-col justify-center ">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                      Overview
+                    </h3>
+                    <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Total Requests
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                          {{ total_requests }}
+                        </dd>
+                      </div>
+                  
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Payment Links Sent
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                          {{ total_payment_links }}
+                        </dd>
+                      </div>
+                  
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Orders Created
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                          {{ total_orders }}
+                        </dd>
+                      </div>
+
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Order Revenue
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                          £{{'%0.2f'| format(total_revenue|float)}}
+                        </dd>
+                        <p class="text-xs text-gray-500 mt-1">*Based on cash/deposit orders marked as fulfilled and online payment orders marked as paid. Your revenue as measured by online transactions processed thorugh Stripe will likely differ. </p>
+                      </div>
+                  
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Source Percentage
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            {{'%0.2f'| format(source_percentage|float)}}%
+                        </dd>
+                        <p class="text-xs text-gray-500 mt-1">*The percentage of products you could source out of total product requests.</p>
+                      </div>
+                  
+                      <div class="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">
+                          Orders Fulfilled
+                        </dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                          {{ total_orders_fulfilled }}
+                        </dd>
+                      </div>
+                    </dl>
+                    <p class="text-xs text-gray-500 mt-6">More analytics coming soon...</p>
+                  </div>
+            </div>
+        </div>
+
+{% endblock %}

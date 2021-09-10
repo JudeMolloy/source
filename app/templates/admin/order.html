@@ -71,7 +71,11 @@
                     Deposit Percentage
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {{ payment_link.deposit_percentage }}%
+                    {% if not payment_link.deposit_percentage %}
+                        N/A
+                    {% else %}
+                        {{ payment_link.deposit_percentage }}%
+                    {% endif %}
                 </dd>
                 </div>
 
@@ -135,7 +139,7 @@
                 </dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {% if order.payment_amount %}
-                        £{{ order.payment_amount }}
+                        £{{'%0.2f'| format(order.payment_amount|float)}}
                     {% else %}
                         N/A
                     {% endif %}
