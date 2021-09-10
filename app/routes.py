@@ -27,6 +27,7 @@ from libs.email import MailgunException, Email
 from libs.otp import OTP
 from libs.upload import upload_file_to_bucket
 from deorators import check_email_confirmed
+from sqlalchemy import desc, asc
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
@@ -315,7 +316,8 @@ def create_company():
 def company_requests(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
-        requests = Request.query.filter_by(company_id=company.id).all()
+        requests = Request.query.filter_by(company_id=company.id).order_by(Request.datetime.asc()).all()
+        requests.reverse()
         print(requests)
         return render_template("admin/requests.html", company=company, requests=requests)
 
