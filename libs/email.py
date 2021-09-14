@@ -29,7 +29,7 @@ class Email:
             raise MailgunException(LOAD_DOMAIN_FAILED)
 
         response = post(
-            "https://api.mailgun.net/v3/{}/messages".format(cls.MAILGUN_DOMAIN),
+            "https://api.eu.mailgun.net/v3/{}/messages".format(cls.MAILGUN_DOMAIN),
             auth=("api", cls.MAILGUN_API_KEY),
             data={"from": "{} <{}>".format(cls.FROM_TITLE, cls.FROM_EMAIL),
                   "to": email,

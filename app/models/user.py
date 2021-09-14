@@ -37,6 +37,9 @@ class User(UserMixin, db.Model):
     stripe_subscription_id = db.Column(db.String(64), index=True)
     stripe_connected_account_id = db.Column(db.String(64), index=True)
 
+    stripe_connect_details_submitted = db.Column(db.Boolean, default=False, nullable=False)
+    stripe_connect_charges_enabled = db.Column(db.Boolean, default=False, nullable=False)
+
     # one-to-many relationship with confirmation.
     confirmations = db.relationship("Confirmation", lazy="dynamic", cascade="all, delete-orphan")
 
@@ -45,6 +48,8 @@ class User(UserMixin, db.Model):
 
     # one-to-one relationship with company.
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
+
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return '<User: {} {}>'.format(self.forename, self.surname)
@@ -106,6 +111,10 @@ class User(UserMixin, db.Model):
     @classmethod
     def find_by_stripe_subscription_id(cls, stripe_subscription_id: str):
         return cls.query.filter_by(stripe_subscription_id=stripe_subscription_id).first()
+
+    @classmethod
+    def find_by_stripe_connected_account_id(cls, stripe_connected_account_id: str):
+        return cls.query.filter_by(stripe_connected_account_id=stripe_connected_account_id).first()
 
     @classmethod
     def find_by_id(cls, _id: int):

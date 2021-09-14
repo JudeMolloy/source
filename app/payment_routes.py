@@ -1,10 +1,11 @@
 import os
 import stripe
 import traceback
+import json
 
 from app import app
 from app.routes import is_company
-from flask import render_template, url_for, flash, request, session
+from flask import render_template, url_for, flash, request, session, jsonify
 from werkzeug.utils import redirect
 from app.models.payment_link import PaymentLink
 from app.models.user import User
@@ -12,6 +13,7 @@ from app.models.request import Request
 from app.models.order import Order
 from flask_login import current_user, login_required
 from app.forms import BillingInfoForm
+from deorators import check_email_confirmed, check_active_subscription
 
 PRODUCTION = os.environ.get('PRODUCTION')
 
@@ -27,7 +29,11 @@ STRIPE_CONNECT_RETURN_URL = os.environ.get('STRIPE_CONNECT_RETURN_URL')
 stripe.api_key = os.environ.get('STRIPE_API_KEY')
 
 @app.route('/select-plan')
+@login_required
+@check_email_confirmed
 def select_plan():
+    if current_user.active_membership:
+        return redirect('index')
     return render_template('payments/select-plan.html')
 
 
@@ -95,7 +101,10 @@ def decline_offer(company_endpoint, payment_link_id):
 
 @app.route('/subscribe')
 @login_required
+@check_email_confirmed
 def subscribe():
+    if current_user.active_membership:
+        return redirect('index')
 
     # set the price id for selected plan
     plan = request.args.get('plan')
@@ -141,7 +150,7 @@ def subscribe():
             payment_behavior='default_incomplete',
             expand=['latest_invoice.payment_intent'],
         )
-        return render_template('payments/subscribe.html', subscriptionId=subscription.id, clientSecret=subscription.latest_invoice.payment_intent.client_secret, plan=plan, user=current_user)
+        return render_template('payments/subscribe.html', subscriptionId=subscription.id, client_secret=subscription.latest_invoice.payment_intent.client_secret, plan=plan, user=current_user)
 
     except Exception as e:
         print(e)
@@ -149,13 +158,18 @@ def subscribe():
 
 
 @app.route('/welcome')
+@login_required
+@check_email_confirmed
 def welcome():
     return render_template('payments/welcome.html')
 
 @app.route('/connect-with-stripe')
 @login_required
+@check_email_confirmed
 def connect_with_stripe():
     # Add a check here to redirect if stripe already connected.
+    if current_user.charges_enabled:
+        return redirect('index')
 
     refresh = request.args.get('refresh')
 
@@ -169,7 +183,9 @@ def connect_with_stripe():
         user = User.find_by_id(current_user.id)
         user.stripe_connected_account_id = account.id
         user.save_to_db()
-        if PRODUCTION != 1:
+        if PRODUCTION != "TRUE":
+            print("WHY")
+            print(PRODUCTION)
             return redirect(url_for('create_company'))
         if account:
             account_link = stripe.AccountLink.create(
@@ -179,6 +195,7 @@ def connect_with_stripe():
                 type='account_onboarding'
             )
             print(account_link)
+            print("WE HERE")
             return render_template('payments/connect-with-stripe.html', account_link=account_link, refresh=refresh)
     except:
         traceback.print_exc()
@@ -189,22 +206,24 @@ def connect_with_stripe():
 
 @app.route('/stripe-connect-return')
 @login_required
+@check_email_confirmed
 def stripe_connect_return():
-    # check details submitted and charges enabled. also maybe the
-    # check card_payments is active.
+    # check details submitted and charges enabled
 
     account = stripe.Account.retrieve(current_user.stripe_connected_account_id)
-    print(account)
-    # not sure if this needs to be string true or acutal boolean. Must check
-    print(account['details_submitted'])
-    if account['details_submitted'] == True:
-        print("bool")
+    
+    if account:
 
+        if account['details_submitted'] == True:
+            current_user.stripe_connect_details_submitted = True
 
-    #account = stripe.Account.retrieve(current_user.stripe_connected_account_id)
-    print(account)
-    return account
+        if account['charges_enabled'] == True:
+            current_user.stripe_connect_charges_enabled = True
 
+        current_user.save_to_db()
+        return redirect(url_for('create_company'))
+
+    return render_template('errors/500.html')
 
 
 @app.route('/<company_endpoint>/<payment_link_id>/<order_id>/checkout')
@@ -231,6 +250,8 @@ def checkout(company_endpoint, payment_link_id, order_id):
             metadata={'integration_check': 'accept_a_payment'},
         )
         print(intent.id)
+        order.stripe_payment_intent_id = intent.id
+        order.save_to_db()
         return render_template('payments/checkout.html', client_secret=intent.client_secret, company=company, payment_link=payment_link, order=order)
     return render_template("errors/404.html")
 
@@ -258,8 +279,6 @@ def stripe_webhook():
         event_type = request_data['type']
 
     data_object = data['object']
-    print(data_object)
-    print("TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST")
 
     if event_type == 'invoice.payment_succeeded':
         if data_object['billing_reason'] == 'subscription_create':
@@ -276,9 +295,9 @@ def stripe_webhook():
             )
 
             status = data_object['status']
-            print(status)
+            print("status: {}".format(status))
 
-            if status == 'active':
+            if status == 'paid':
                 print(subscription_id)
                 user = User.find_by_stripe_subscription_id(subscription_id)
                 if user:
@@ -286,8 +305,10 @@ def stripe_webhook():
                     product_id = data_object['items']['data']['price']['product']
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
+                        user.save_to_db()
                     elif product_id == STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID:
                         user.update_subscription(term='monthly')
+                        user.save_to_db()
                     else:
                         print("Cannot find associated product id.")
 
@@ -295,9 +316,9 @@ def stripe_webhook():
             subscription_id = data_object['subscription']
 
             status = data_object['status']
-            print(status)
+            print("status1: {}".format(status))
 
-            if status == 'active':
+            if status == 'paid':
                 print(subscription_id)
                 user = User.find_by_stripe_subscription_id(subscription_id)
                 if user:
@@ -305,10 +326,13 @@ def stripe_webhook():
                     product_id = data_object['items']['data']['price']['product']
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
+                        user.save_to_db()
                     elif product_id == STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID:
                         user.update_subscription(term='monthly')
+                        user.save_to_db()
                     else:
                         print("Cannot find associated product id.")
+                    
 
     if event_type == 'invoice.paid':
         # Used to provision services after the trial has ended.
@@ -328,6 +352,7 @@ def stripe_webhook():
             # May want to send an payment failed email here and ask to pay again
             # I will still restrict account access
             user.end_subscription()
+            user.save_to_db()
             
         print(data)
 
@@ -337,6 +362,11 @@ def stripe_webhook():
         print(data)
     
     if event_type == "payment_intent.succeeded":
+        print("DISTINGUISH THIS ONE: {}".format(data_object))
+        print(data_object['description'])
+        if "Subscription" in data_object['description']:
+            print(data_object['description'])
+            return jsonify({'status': 'success'})
         payment_intent_id = data_object['id']
         print("payment intent id: {}".format(payment_intent_id))
 

@@ -9,7 +9,6 @@ from app.models.company import Company
 from app.models.payment_link import PaymentLink
 
 
-
 class Request(db.Model):
     __tablename__ = "requests"
 

@@ -14,7 +14,8 @@ from app.forms import (
     CustomerForm,
     CreatePaymentLinkForm,
     CompanyForm,
-    EmailConfirmationCodeForm, 
+    EmailConfirmationCodeForm,
+    ContactSalesForm,
 )
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models.user import User
@@ -24,15 +25,16 @@ from app.models.company import Company
 from app.models.usage_period import UsagePeriod
 from app.models.payment_link import PaymentLink
 from app.models.order import Order
+from app.models.enquiry import Enquiry
 from libs.email import MailgunException, Email
 from libs.otp import OTP
 from libs.upload import upload_file_to_bucket
-from deorators import check_email_confirmed
+from deorators import check_email_confirmed, check_active_subscription
 from sqlalchemy import desc, asc, func
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
-ITEMS_PER_PAGE = 3
+ITEMS_PER_PAGE = 10
 
 stripe.api_key = os.environ.get('STRIPE_API_KEY')
 
@@ -59,8 +61,26 @@ def is_company(company_endpoint):
 
 @app.route('/')
 def index():
-    form = RegistrationForm()
-    return render_template('landing/landing.html', form=form)
+    return render_template('landing/landing.html')
+
+
+@app.route('/contact-sales')
+def contact_sales():
+    form = ContactSalesForm()
+
+    if form.validate_on_submit():
+        enquiry = Enquiry(
+            full_name=form.full_name.data,
+            email=form.email.data,
+            subject=form.subject.data,
+            message=form.message.data,
+        )
+
+        enquiry.save_to_db()
+        return render_template('contact-form-success.html')
+
+    return render_template('landing/contact-sales.html', form=form)
+
 
 
 @app.route('/<company_endpoint>',  methods = ['GET', 'POST'])
@@ -116,21 +136,21 @@ def request_complete(company_endpoint):
 @app.route('/<company_endpoint>/<payment_link_id>')
 def payment_link(company_endpoint, payment_link_id):
     company = is_company(company_endpoint)
+    company_owner = User.query.filter_by(company_id=company.id).first_or_404()
     if company:
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
         if payment_link.expired:
             return render_template('payments/expired.html', company=company, payment_link=payment_link) 
         return render_template('payments/expired.html', company=company, payment_link=payment_link)
-        if company.accept_cash:
+        if not company_owner.stripe_connected_charges_enabled:
+            cash_payment_status = "only"
+        elif company.accept_cash:
             if payment_link.deposit_percentage != 0 and not None:
                 cash_payment_status = "available with {}% deposit".format(payment_link.deposit_percentage)
             else:
                 cash_payment_status = "available"
         else:
             cash_payment_status = "unavailable"
-        #print(datetime.fromtimestamp(payment_link.expire_at / 1e3))
-        #expiry_date = datetime.fromtimestamp(payment_link.expire_at / 1e3).strftime('%d %b %Y')
-        #print(expiry_date)
 
         return render_template('buy.html', company=company, payment_link=payment_link, cash_payment_status=cash_payment_status)
     return render_template("errors/404.html")
@@ -155,6 +175,7 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -197,6 +218,9 @@ def register():
 @app.route('/email-confirmation-sent', methods = ['GET', 'POST'])
 @login_required
 def email_confirmation_sent():
+
+    if current_user.is_confirmed:
+        return()
     status = False
     name = current_user.forename
     email = current_user.email
@@ -227,13 +251,20 @@ def email_confirmation_sent():
         otp = confirmation.otp
         if form.otp.data == otp:
             confirmation.confirmed = True
+            confirmation.save_to_db()
             return redirect(url_for('select_plan'))
         else:
             status = True
     return render_template("email-confirmation-sent.html", form=form, message1=message1, message2=message2, incorrect=status)
 
 
+@app.route('/unconfirmed-email')
+@login_required
+def unconfirmed_email():
+    return render_template('unconfirmed-email.html')
 
+
+'''
 @app.route('/email-confirmation-re-sent')
 @login_required
 def resend_email_confirmation():
@@ -277,9 +308,12 @@ def unconfirmed_email():
             status = True
     return render_template("email-confirmation-sent.html", form=form, name=name, email_address=email, incorrect=status)
 
+'''
 
 @app.route('/create-company', methods = ['GET', 'POST'])
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def create_company():
     # check if user has already created a company.
     user = User.query.filter_by(id=current_user.id).first()
@@ -319,6 +353,8 @@ def create_company():
 
 @app.route('/<company_endpoint>/admin')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_dashboard(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -347,6 +383,8 @@ def company_dashboard(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/requests')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_requests(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -370,6 +408,8 @@ def company_requests(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/request/<request_id>')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_request(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -382,6 +422,8 @@ def company_request(company_endpoint, request_id):
 
 @app.route('/<company_endpoint>/admin/request/<request_id>/could-not-source')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_could_not_source_request(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -396,6 +438,8 @@ def company_could_not_source_request(company_endpoint, request_id):
 
 @app.route('/<company_endpoint>/admin/settings', methods = ['GET', 'POST'])
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_settings(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
 
@@ -429,6 +473,8 @@ def company_settings(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/account-settings', methods = ['GET', 'POST'])
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_account_settings(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
 
@@ -462,6 +508,8 @@ def company_account_settings(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/payment-links')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_payment_links(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -486,6 +534,8 @@ def company_payment_links(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/payment-link/<payment_link_id>')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_payment_link(company_endpoint, payment_link_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -498,6 +548,8 @@ def company_payment_link(company_endpoint, payment_link_id):
 
 @app.route('/<company_endpoint>/admin/delete-payment-link/<payment_link_id>')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_delete_payment_link(company_endpoint, payment_link_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -511,6 +563,8 @@ def company_delete_payment_link(company_endpoint, payment_link_id):
 
 @app.route('/<company_endpoint>/admin/create-payment-link/<request_id>', methods = ['GET', 'POST'])
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_create_payment_link(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
 
@@ -562,6 +616,8 @@ def company_create_payment_link(company_endpoint, request_id):
 
 @app.route('/<company_endpoint>/admin/edit-payment-link/<payment_link_id>', methods = ['GET', 'POST'])
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_edit_payment_link(company_endpoint, payment_link_id):
     company = company_access(current_user.id, company_endpoint)
 
@@ -600,6 +656,8 @@ def company_edit_payment_link(company_endpoint, payment_link_id):
 
 @app.route('/<company_endpoint>/admin/orders')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_orders(company_endpoint):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -624,6 +682,8 @@ def company_orders(company_endpoint):
 
 @app.route('/<company_endpoint>/admin/order/<order_id>')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_order(company_endpoint, order_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -637,6 +697,8 @@ def company_order(company_endpoint, order_id):
 
 @app.route('/<company_endpoint>/admin/order/<order_id>/fulfill-order')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_fulfill_order(company_endpoint, order_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
@@ -650,6 +712,8 @@ def company_fulfill_order(company_endpoint, order_id):
 
 @app.route('/<company_endpoint>/admin/order/<order_id>/unfulfill-order')
 @login_required
+@check_email_confirmed
+@check_active_subscription
 def company_unfulfill_order(company_endpoint, order_id):
     company = company_access(current_user.id, company_endpoint)
     if company:

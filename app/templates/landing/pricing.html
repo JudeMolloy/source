@@ -18,12 +18,12 @@
       <div class="relative">
         <div class="absolute inset-0 h-3/4 bg-gray-800">
         </div>
-        <div class="relative flex items-center my-6 justify-center">
+        <div class="relative flex items-center mb-8 justify-center">
           <button type="button" id="pricing-toggle" class="bg-gray-200 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" role="switch" aria-checked="false" aria-labelledby="annual-billing-label">
             <span aria-hidden="true" id="pricing-toggle-slide" class="translate-x-0 pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"></span>
           </button>
           <p>
-            <span class="ml-3 z-1" id="annual-billing-label">
+            <span class="ml-3" id="annual-billing-label">
               <span class="text-sm font-medium text-white">Annual billing</span>
               <span class="text-sm text-gray-200">(Save over 10%)</span>
             </span>
@@ -99,7 +99,7 @@
                   </li>
                 </ul>
                 <div class="rounded-md shadow">
-                  <a href="#" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900" aria-describedby="tier-standard">
+                  <a href="{{ url_for('register') }}" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900" aria-describedby="tier-standard">
                     Get started
                   </a>
                 </div>

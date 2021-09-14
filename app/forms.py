@@ -1,6 +1,6 @@
 import phonenumbers
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FloatField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, FloatField, TextAreaField
 from wtforms.fields.html5 import TelField
 from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
@@ -111,3 +111,11 @@ class BillingInfoForm(FlaskForm):
     country = StringField('Country*', validators=[DataRequired(),  Length(max=64)])
     postcode = StringField('Postcode*', validators=[DataRequired(),  Length(max=16)])
     submit = SubmitField('Continue')
+
+
+class ContactSalesForm(FlaskForm):
+    full_name = StringField('Full Name*', validators=[DataRequired()])
+    email = StringField('Email*', validators=[DataRequired(), Email(),  Length(max=120)])
+    subject = StringField('Subject*', validators=[DataRequired()])
+    message = TextAreaField('Message*', validators=[DataRequired()])
+    submit = SubmitField('Send')

@@ -1,0 +1,32 @@
+{% extends 'mastero-base.html' %}
+
+{% block content %}
+
+{% include 'mastero-logo.html' %}
+
+<div class="flex place-content-center mt-10 mx-4">
+    <div class="relative rounded-xl bg-white lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
+
+        <div class="w-full p-10">
+            <div class="flex flex-col mb-2 place-content-center">
+                <h1 class="flex flex-col text-xl font-semibold text-center">
+                    Please confirm your email address to access Mastero.
+                </h1>
+
+                <a class="m-auto mt-6" href="{{ url_for('email_confirmation_sent', resend='true' ) }}">
+                  <button type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      Resend Email
+                  </button>
+                </a>
+
+                <p class="text-sm text-gray-500 text-center mt-6">
+                  Having trouble confirming your email? Contact us on social media!
+                </p>
+
+            </div>
+</div>
+  </div>
+</div>
+
+
+{% endblock %}
