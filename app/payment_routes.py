@@ -150,6 +150,10 @@ def subscribe():
             payment_behavior='default_incomplete',
             expand=['latest_invoice.payment_intent'],
         )
+
+        # save subscription id to user instance.
+        current_user.stripe_subscription_id = subscription.id
+
         return render_template('payments/subscribe.html', subscriptionId=subscription.id, client_secret=subscription.latest_invoice.payment_intent.client_secret, plan=plan, user=current_user)
 
     except Exception as e:
@@ -169,7 +173,7 @@ def welcome():
 def connect_with_stripe():
     # Add a check here to redirect if stripe already connected.
     if current_user.stripe_connect_charges_enabled:
-        return redirect('index')
+        return redirect(url_for('index'))
 
     refresh = request.args.get('refresh')
 
@@ -305,9 +309,11 @@ def stripe_webhook():
                     product_id = data_object['items']['data']['price']['product']
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
+                        print('annually')
                         user.save_to_db()
                     elif product_id == STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID:
                         user.update_subscription(term='monthly')
+                        print('monthly')
                         user.save_to_db()
                     else:
                         print("Cannot find associated product id.")
