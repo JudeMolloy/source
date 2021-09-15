@@ -168,7 +168,7 @@ def welcome():
 @check_email_confirmed
 def connect_with_stripe():
     # Add a check here to redirect if stripe already connected.
-    if current_user.charges_enabled:
+    if current_user.stripe_connect_charges_enabled:
         return redirect('index')
 
     refresh = request.args.get('refresh')
