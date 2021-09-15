@@ -97,6 +97,17 @@
                     Automated SMS text messages and emails to send your customers the payment link.
                     </p>
                   </li>
+                  <li class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <!-- Heroicon name: outline/check -->
+                      <svg class="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <p class="ml-3 text-base text-gray-700">
+                       Overview Analytics.
+                    </p>
+                  </li>
                 </ul>
                 <div class="rounded-md shadow">
                   <a href="{{ url_for('register') }}" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900" aria-describedby="tier-standard">
@@ -178,12 +189,12 @@
                       </svg>
                     </div>
                     <p class="ml-3 text-base text-gray-700">
-                      Detailed analytics.
+                      Extensive analytics.
                     </p>
                   </li>
                 </ul>
                 <div class="rounded-md shadow">
-                  <a href="#" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900" aria-describedby="tier-standard">
+                  <a href="{{ url_for('contact_sales') }}" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900" aria-describedby="tier-standard">
                     Get started
                   </a>
                 </div>
