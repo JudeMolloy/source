@@ -252,7 +252,7 @@ def checkout(company_endpoint, payment_link_id, order_id):
         print(intent.id)
         order.stripe_payment_intent_id = intent.id
         order.save_to_db()
-        return render_template('payments/checkout.html', client_secret=intent.client_secret, company=company, payment_link=payment_link, order=order)
+        return render_template('payments/checkout.html', client_secret=intent.client_secret, company=company, payment_link=payment_link, order=order, stripe_connected_account_id=stripe_connected_account_id)
     return render_template("errors/404.html")
 
 
