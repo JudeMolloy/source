@@ -1,8 +1,8 @@
-"""Initial Migrate.
+"""Initial migration.
 
-Revision ID: 0c0c6a8ad462
+Revision ID: 90457498e445
 Revises: 
-Create Date: 2021-09-14 20:24:02.314721
+Create Date: 2021-09-15 20:30:00.429658
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0c0c6a8ad462'
+revision = '90457498e445'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -107,7 +107,7 @@ def upgrade():
     sa.Column('product_image_url', sa.String(), nullable=True),
     sa.Column('deposit_percentage', sa.Float(), nullable=True),
     sa.Column('company_id', sa.Integer(), nullable=False),
-    sa.Column('request_id', sa.Integer(), nullable=True),
+    sa.Column('request_id', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
     sa.ForeignKeyConstraint(['request_id'], ['requests.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -138,7 +138,7 @@ def upgrade():
     sa.Column('postcode', sa.String(length=16), nullable=True),
     sa.Column('stripe_payment_intent_id', sa.String(length=128), nullable=True),
     sa.Column('company_id', sa.Integer(), nullable=False),
-    sa.Column('payment_link_id', sa.Integer(), nullable=True),
+    sa.Column('payment_link_id', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ),
     sa.ForeignKeyConstraint(['payment_link_id'], ['payment_links.id'], ),
     sa.PrimaryKeyConstraint('id')
