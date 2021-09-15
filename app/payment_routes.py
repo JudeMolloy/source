@@ -304,9 +304,11 @@ def stripe_webhook():
             if status == 'paid':
                 print(subscription_id)
                 user = User.find_by_stripe_subscription_id(subscription_id)
+                print("The user is {}".format(user))
                 if user:
                     # May want to send an onboarding email here
                     product_id = data_object['items']['data']['price']['product']
+                    print(product_id)
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
                         print('annually')
