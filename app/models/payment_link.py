@@ -36,7 +36,7 @@ class PaymentLink(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
 
     # one-to-one relationship with request.
-    request_id = db.Column(db.Integer, db.ForeignKey('requests.id'), nullable=True)
+    request_id = db.Column(db.String, db.ForeignKey('requests.id'), nullable=True)
 
     # one-to-one relationship with order.
     order = db.relationship('Order', backref='payment_link', lazy=True, uselist=False)

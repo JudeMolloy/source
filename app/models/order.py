@@ -36,7 +36,7 @@ class Order(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey("companies.id"), nullable=False) 
 
     # one-to-one relationship with payment link.
-    payment_link_id = db.Column(db.Integer, db.ForeignKey('payment_links.id'), nullable=True)
+    payment_link_id = db.Column(db.String, db.ForeignKey('payment_links.id'), nullable=True)
 
 
     # ensure when generating link that the correct company url is used.
