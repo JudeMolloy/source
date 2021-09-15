@@ -20,6 +20,9 @@ PRODUCTION = os.environ.get('PRODUCTION')
 STRIPE_STANDARD_MONTHLY_PLAN_PRICE_ID = os.environ.get('STRIPE_STANDARD_MONTHLY_PLAN_PRICE_ID')
 STRIPE_STANDARD_ANNUAL_PLAN_PRICE_ID = os.environ.get('STRIPE_STANDARD_ANNUAL_PLAN_PRICE_ID')
 
+STRIPE_STANDARD_MONTHLY_PLAN_AMOUNT = os.environ.get('STRIPE_STANDARD_MONTHLY_PLAN_AMOUNT')
+STRIPE_STANDARD_ANNUAL_PLAN_AMOUNT = os.environ.get('STRIPE_STANDARD_ANNUAL_PLAN_AMOUNT')
+
 STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID = os.environ.get('STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID')
 STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID = os.environ.get('STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID')
 
@@ -33,7 +36,7 @@ stripe.api_key = os.environ.get('STRIPE_API_KEY')
 @check_email_confirmed
 def select_plan():
     if current_user.active_membership:
-        return redirect('index')
+        return redirect(url_for('index'))
     return render_template('payments/select-plan.html')
 
 
@@ -153,6 +156,7 @@ def subscribe():
 
         # save subscription id to user instance.
         current_user.stripe_subscription_id = subscription.id
+        current_user.save_to_db()
 
         return render_template('payments/subscribe.html', subscriptionId=subscription.id, client_secret=subscription.latest_invoice.payment_intent.client_secret, plan=plan, user=current_user)
 
@@ -307,18 +311,18 @@ def stripe_webhook():
                 print("The user is {}".format(user))
                 if user:
                     # May want to send an onboarding email here
-                    product_id = data_object['items']['data']['price']['product']
-                    print(product_id)
+                    product_id = data_object['lines'].data[0]['price']['product']
+                    
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
-                        print('annually')
                         user.save_to_db()
                     elif product_id == STRIPE_STANDARD_MONTHLY_PLAN_PRODUCT_ID:
                         user.update_subscription(term='monthly')
-                        print('monthly')
                         user.save_to_db()
                     else:
                         print("Cannot find associated product id.")
+                        return {'status': 'failed'}, 500
+                    return jsonify({'status': 'success'})
 
         if data_object['billing_reason'] == 'subscription_cycle':
             subscription_id = data_object['subscription']
@@ -331,7 +335,8 @@ def stripe_webhook():
                 user = User.find_by_stripe_subscription_id(subscription_id)
                 if user:
                     # May want to send an onboarding email here
-                    product_id = data_object['items']['data']['price']['product']
+                    product_id = data_object['lines'].data[0]['price']['product']
+                    
                     if product_id == STRIPE_STANDARD_ANNUAL_PLAN_PRODUCT_ID:
                         user.update_subscription(term='annually')
                         user.save_to_db()
@@ -340,7 +345,9 @@ def stripe_webhook():
                         user.save_to_db()
                     else:
                         print("Cannot find associated product id.")
-                    
+                        return {'status': 'failed'}, 500
+                    return jsonify({'status': 'success'})
+
 
     if event_type == 'invoice.paid':
         # Used to provision services after the trial has ended.
