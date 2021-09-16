@@ -82,7 +82,7 @@ def billing_info(company_endpoint, payment_link_id, payment_type):
                 # go to checkout
                 return redirect(url_for('checkout', company_endpoint=company_endpoint, payment_link_id=payment_link_id, order_id=order.id))
 
-            return render_template("/payments/pay-cash.html")
+            return render_template("payments/pay-cash.html", company=company)
             
         return render_template("payments/billing-info.html", form=form, company=company)
     return render_template('errors/500.html')

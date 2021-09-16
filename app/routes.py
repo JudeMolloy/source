@@ -139,10 +139,12 @@ def payment_link(company_endpoint, payment_link_id):
     company_owner = User.query.filter_by(company_id=company.id).first_or_404()
     if company:
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
+        print(payment_link.expire_at)
+        print(datetime.utcnow())
+        print(payment_link.expire_at > datetime.utcnow())
         if payment_link.expired:
             return render_template('payments/expired.html', company=company, payment_link=payment_link) 
-        return render_template('payments/expired.html', company=company, payment_link=payment_link)
-        if not company_owner.stripe_connected_charges_enabled:
+        if not company_owner.stripe_connect_charges_enabled:
             cash_payment_status = "only"
         elif company.accept_cash:
             if payment_link.deposit_percentage != 0 and not None:
@@ -317,7 +319,9 @@ def unconfirmed_email():
 def create_company():
     # check if user has already created a company.
     user = User.query.filter_by(id=current_user.id).first()
-    company = Company.query.filter_by(user=user).first()
+    print(user)
+    company = Company.query.filter_by(id=user.company_id).first()
+    print(company)
     if company:
         return redirect(url_for('company_settings', company_endpoint=company.endpoint))
     

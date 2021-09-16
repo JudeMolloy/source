@@ -5,6 +5,7 @@ from wtforms.fields.html5 import TelField
 from wtforms.validators import DataRequired, EqualTo, Email, ValidationError, Length, NumberRange, Optional
 from wtforms.widgets import TextArea
 from app.models.user import User
+from app.models.company import Company
 from flask_login import current_user
 
 

@@ -49,7 +49,7 @@ class PaymentLink(db.Model):
 
     @property
     def expired(self):
-        return time() > self.expire_at  # True if the payment_link has expired.
+        return datetime.utcnow() > self.expire_at  # True if the payment_link has expired.
 
     @classmethod
     def find_by_id(cls, _id: str):
