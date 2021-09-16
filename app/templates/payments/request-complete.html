@@ -1,0 +1,31 @@
+{% extends 'customer-base.html' %}
+
+{% block content %}
+
+{% include 'company-logo.html' %}
+
+<div class="flex place-content-center mt-10 mx-4">
+    <div class="relative rounded-xl bg-white lg:w-1/2 sm:rounded-tl-xl lg:rounded-xl shadow-lg flex flex-col sm:flex-row xl:flex-row lg:-mr-8">
+
+        <div class="w-full p-10">
+            <div class="flex flex-col mb-2 place-content-center">
+                <h1 class="flex flex-col text-xl font-semibold text-center">
+                    Thank you!
+                </h1>
+                <div class="text-xl font-semibold text-gray-500 text-center my-4">
+                  {{ company.name }} has received your order.
+                </div>
+                <p class="text-sm text-gray-500 text-center">
+                  Your order reference is: <strong>#{{ order.id }}</strong>.
+                </p>
+
+                <p class="text-sm text-gray-500 text-center mt-10">
+                  Please take a note of this reference as it will help us identify your order.
+                </p>
+            </div>
+</div>
+  </div>
+</div>
+
+
+{% endblock %}

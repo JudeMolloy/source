@@ -29,11 +29,15 @@ from app.models.enquiry import Enquiry
 from libs.email import MailgunException, Email
 from libs.otp import OTP
 from libs.upload import upload_file_to_bucket
+from libs.sms import Twilio
 from deorators import check_email_confirmed, check_active_subscription
 from sqlalchemy import desc, asc, func
 
 AWS_COMPANY_LOGOS_FOLDER = os.environ.get('AWS_COMPANY_LOGOS_FOLDER')
 AWS_PRODUCT_IMG_FOLDER = os.environ.get('AWS_PRODUCT_IMG_FOLDER')
+
+BASE_URL = os.environ.get('BASE_URL')
+
 ITEMS_PER_PAGE = 10
 
 stripe.api_key = os.environ.get('STRIPE_API_KEY')
@@ -136,8 +140,8 @@ def request_complete(company_endpoint):
 @app.route('/<company_endpoint>/<payment_link_id>')
 def payment_link(company_endpoint, payment_link_id):
     company = is_company(company_endpoint)
-    company_owner = User.query.filter_by(company_id=company.id).first_or_404()
     if company:
+        company_owner = User.query.filter_by(company_id=company.id).first_or_404()
         payment_link = PaymentLink.query.filter_by(company_id=company.id, id=payment_link_id).first_or_404()
         print(payment_link.expire_at)
         print(datetime.utcnow())
@@ -366,7 +370,7 @@ def company_dashboard(company_endpoint):
         total_payment_links = PaymentLink.query.filter_by(company_id=company.id).count()
         total_orders = Order.query.filter_by(company_id=company.id).count()
 
-        total_revenue =  sum(order.payment_amount for order in Order.query.filter_by(company_id=company.id).filter((Order.completion_datetime != None) | (Order.paid == True and Order.payment_type == 'online')).all())
+        total_revenue =  sum(order.payment_amount for order in Order.query.filter_by(company_id=company.id).filter(Order.payment_amount!=None).filter((Order.completion_datetime != None) | (Order.paid == True and Order.payment_type == 'online')).all())
         print(total_revenue)
         
         # avoids division by zero error
@@ -498,10 +502,12 @@ def company_account_settings(company_endpoint):
             return redirect(url_for('company_dashboard', company_endpoint=company.endpoint))
         
         try:
-            stripe_portal_session = stripe.billing_portal.Session.create(
-                customer=current_user.stripe_customer_id,
-                return_url=url_for('company_account_settings', company_endpoint=company.endpoint),
-            )
+            if current_user.stripe_customer_id:
+                print(BASE_URL + url_for('company_account_settings', company_endpoint=company.endpoint))
+                stripe_portal_session = stripe.billing_portal.Session.create(
+                    customer=current_user.stripe_customer_id,
+                    return_url=BASE_URL + url_for('company_account_settings', company_endpoint=company.endpoint),
+                )
         except:
             traceback.print_exc()
             return render_template("errors/500.html")
@@ -607,6 +613,18 @@ def company_create_payment_link(company_endpoint, request_id):
             payment_link.save_to_db()
 
             # send sms text message and email.
+            payment_link_url = BASE_URL + url_for('payment_link', company_endpoint=company.endpoint, payment_link_id=payment_link.id)
+
+            message = "{} has sourced your requested product. Please click the following link to view the offer: {}".format(company.name, payment_link_url)
+            sender = "Mastero"
+            phone_number = product_request.phone
+
+            Twilio.send_sms(message, sender, phone_number)
+
+            email = product_request.email
+            subject = "{} sourced your product!".format(company.name)
+            html = render_template('email/send-payment-link.html', company_name=company.name, url=payment_link_url)
+            Email.send_email(email, subject, message, html)
 
             # set request to sourced.
             product_request.product_sourced()

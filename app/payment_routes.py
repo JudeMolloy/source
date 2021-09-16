@@ -264,6 +264,15 @@ def checkout(company_endpoint, payment_link_id, order_id):
     return render_template("errors/404.html")
 
 
+@app.route('/<company_endpoint>/<order_id>/complete')
+def order_complete(company_endpoint, order_id):
+    company = is_company(company_endpoint)
+    if company:
+        order = Order.query.filter_by(company_id=company.id, id=order_id).first_or_404()
+        return render_template('payments/order-complete.html', company=company, order=order)
+    return render_template("errors/404.html")
+
+
 @app.route('/stripe-webhook', methods=['POST'])
 def stripe_webhook():
     # You can use webhooks to receive information about asynchronous payment events.
