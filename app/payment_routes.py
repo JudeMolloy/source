@@ -103,7 +103,7 @@ def decline_offer(company_endpoint, payment_link_id):
         payment_link.decline_offer()
         payment_link.save_to_db()
             
-        return render_template("offer-declined.html")
+        return render_template('payments/offer-declined.html', company=company)
     return render_template('errors/500.html')
 
 

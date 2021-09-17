@@ -5,6 +5,7 @@ from uuid import uuid4
 from time import time
 from datetime import datetime
 from app import app, db, login
+from app.models.payment_link import PaymentLink
 
 
 PAYMENT_LINK_EXPIRATION_DELTA = 604800  # 7 days (in seconds). Could possibly make this customisable.
@@ -54,6 +55,10 @@ class Order(db.Model):
 
     def customer_paid(self):
         self.paid = True
+        payment_link = PaymentLink.query.filter_by(id=self.payment_link_id).first()
+        if payment_link:
+            payment_link.paid = True
+            payment_link.save_to_db()
 
     def fulfill(self):
         self.completion_datetime = datetime.utcnow()
