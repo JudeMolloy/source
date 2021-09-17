@@ -287,6 +287,7 @@ def stripe_webhook():
 
     if webhook_secret:
         # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
+        print(webhook_secret)
         signature = request.headers.get('stripe-signature')
         print("THIS IS THE SIGNATURE {}".format(signature))
         try:
