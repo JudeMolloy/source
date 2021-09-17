@@ -66,8 +66,11 @@ def is_company(company_endpoint):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        company = Company.query.filter_by(id=current_user.company_id).first_or_404()
-        return render_template('landing/landing.html', company=company)
+        company = Company.query.filter_by(id=current_user.company_id).first()
+        if company:
+            return render_template('landing/landing.html', company=company)
+        else:
+            return redirect(url_for(''))
     return render_template('landing/landing.html')
 
 

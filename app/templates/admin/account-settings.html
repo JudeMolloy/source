@@ -119,11 +119,16 @@
 
         <div class="flex-1 min-w-0 mb-4 pt-4">
             <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate mb-4">
-            Billing Settings
+            Payment Settings
             </h2>
             <a href="{{ stripe_portal_url }}">
                 <button type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Billing Settings
+                </button>
+            </a>
+            <a href="{{ stripe_portal_url }}">
+                <button type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Accept Online Payments
                 </button>
             </a>
         </div>

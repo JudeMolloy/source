@@ -36,7 +36,11 @@ stripe.api_key = os.environ.get('STRIPE_API_KEY')
 @check_email_confirmed
 def select_plan():
     if current_user.active_membership:
-        return redirect(url_for('index'))
+        company = Company.query.filter_by(id=current_user.company_id).first()
+        if company:
+            return redirect(url_for('company_dashboard', company_endpoint=company.endpoint))
+        else:
+            return redirect(url_for('create_company'))
     return render_template('payments/select-plan.html')
 
 
