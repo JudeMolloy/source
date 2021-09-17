@@ -413,3 +413,66 @@ def stripe_webhook():
             return {'status': 'failed'}, 500
 
     return jsonify({'status': 'success'})
+
+
+
+@app.route('/stripe-connect-webhook', methods=['POST'])
+def stripe_connect_webhook():
+    # You can use webhooks to receive information about asynchronous payment events.
+    # For more about our webhook events check out https://stripe.com/docs/webhooks.
+    webhook_secret = os.environ.get('STRIPE_CONNECT_WEBHOOK_SECRET')
+    request_data = json.loads(request.data)
+
+    if webhook_secret:
+        # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
+        print(webhook_secret)
+        signature = request.headers.get('stripe-signature')
+        print("THIS IS THE SIGNATURE {}".format(signature))
+        try:
+            event = stripe.Webhook.construct_event(
+                payload=request.data, sig_header=signature, secret=webhook_secret)
+            data = event['data']
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            return e
+        # Get the type of webhook event sent - used to check the status of PaymentIntents.
+        event_type = event['type']
+    else:
+        data = request_data['data']
+        event_type = request_data['type']
+
+    data_object = data['object']
+
+
+    if event_type == 'invoice.paid':
+        # Used to provision services after the trial has ended.
+        # The status of the invoice will show up as paid. Store the status in your
+        # database to reference when a user accesses your service to avoid hitting rate
+        # limits.
+        print(data)
+
+    if event_type == 'customer.subscription.deleted':
+        # handle subscription cancelled automatically based
+        # upon your subscription settings. Or if the user cancels it.
+        print(data)
+    
+    if event_type == "payment_intent.succeeded":
+        print("DISTINGUISH THIS ONE: {}".format(data_object))
+        print(data_object['description'])
+        if "Subscription" in data_object['description']:
+            print(data_object['description'])
+            return jsonify({'status': 'success'})
+        payment_intent_id = data_object['id']
+        print("payment intent id: {}".format(payment_intent_id))
+
+        order = Order.find_by_stripe_payment_intent_id(payment_intent_id)
+
+        if order:
+            order.customer_paid()
+            order.save_to_db()
+        else:
+            print("Order not found")
+            return {'status': 'failed'}, 500
+
+    return jsonify({'status': 'success'})

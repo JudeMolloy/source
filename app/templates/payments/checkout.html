@@ -115,7 +115,7 @@
             // execution. Set up a webhook or plugin to listen for the
             // payment_intent.succeeded event that handles any business critical
             // post-payment actions.
-            window.location.replace("{{ url_for('order_complete', company_endpoint=company.endpoint order_id=order.id) }}");
+            window.location.replace("{{ url_for('order_complete', company_endpoint=company.endpoint, order_id=order.id) }}");
         }
         }
     });
