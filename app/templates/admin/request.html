@@ -99,7 +99,7 @@
                             </a>
                         {% else %}
                             <a href="{{ url_for('company_create_payment_link', company_endpoint=company.endpoint, request_id=request.id) }}">
-                                <button nclick="return confirm('Are you sure you would like to send payment link? This will automatically send an email and SMS text message to the customer with a link to purchase the product.')"type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <button type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     Send Payment Link
                                 </button>
                             </a>
