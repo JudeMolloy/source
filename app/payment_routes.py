@@ -292,7 +292,7 @@ def stripe_webhook():
         print("THIS IS THE SIGNATURE {}".format(signature))
         try:
             event = stripe.Webhook.construct_event(
-                payload=request_data, sig_header=signature, secret=webhook_secret)
+                payload=request.data, sig_header=signature, secret=webhook_secret)
             data = event['data']
         except Exception as e:
             print(e)
