@@ -395,13 +395,10 @@ def stripe_webhook():
         print(data)
     
     if event_type == "payment_intent.succeeded":
-        print("DISTINGUISH THIS ONE: {}".format(data_object))
-        print(data_object['description'])
-        if "Subscription" in data_object['description']:
-            print(data_object['description'])
-            return jsonify({'status': 'success'})
+        if data_object['description']:
+            if "Subscription" in data_object['description']:
+                return jsonify({'status': 'success'})
         payment_intent_id = data_object['id']
-        print("payment intent id: {}".format(payment_intent_id))
 
         order = Order.find_by_stripe_payment_intent_id(payment_intent_id)
 
@@ -458,13 +455,11 @@ def stripe_connect_webhook():
         print(data)
     
     if event_type == "payment_intent.succeeded":
-        print("DISTINGUISH THIS ONE: {}".format(data_object))
-        print(data_object['description'])
-        if "Subscription" in data_object['description']:
-            print(data_object['description'])
-            return jsonify({'status': 'success'})
+
+        if data_object['description']:
+            if "Subscription" in data_object['description']:
+                return jsonify({'status': 'success'})
         payment_intent_id = data_object['id']
-        print("payment intent id: {}".format(payment_intent_id))
 
         order = Order.find_by_stripe_payment_intent_id(payment_intent_id)
 

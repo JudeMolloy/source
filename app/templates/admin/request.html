@@ -103,13 +103,13 @@
                                     Send Payment Link
                                 </button>
                             </a>
+                            <br>
+                            <a href="{{ url_for('company_could_not_source_request', company_endpoint=company.endpoint, request_id=request.id) }}">
+                                <button onclick="return confirm('Are you sure you would like to send an email and SMS text message informing the customer you cannot source their requested product?')" type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Cannot Source
+                                </button>
+                            </a>
                         {% endif %}
-                        <br>
-                        <a href="{{ url_for('company_could_not_source_request', company_endpoint=company.endpoint, request_id=request.id) }}">
-                            <button onclick="return confirm('Are you sure you would like to reply to the customer with a message saying you cannot source their requested product?')" type="button" class="my-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Cannot Source
-                            </button>
-                        </a>
                     </dd>
                 {% else %}
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">

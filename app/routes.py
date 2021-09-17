@@ -445,6 +445,19 @@ def company_could_not_source_request(company_endpoint, request_id):
         request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
         request.could_not_source()
         request.save_to_db()
+
+        # send sms text message and email.
+        message = "Sorry! {} was unable to source your requested product. We hope to see you again!".format(company.name)
+        sender = "Mastero"
+        phone_number = product_request.phone
+
+        Twilio.send_sms(message, sender, phone_number)
+
+        email = product_request.email
+        subject = "{} could not source your product.".format(company.name)
+        html = render_template('email/send-payment-link.html', company_name=company.name)
+        Email.send_email(email, subject, message, html)
+
         return redirect(url_for('company_request', company_endpoint=company.endpoint, request_id=request.id))
 
     return render_template("errors/404.html")
@@ -755,4 +768,4 @@ def company_unfulfill_order(company_endpoint, order_id):
 
 @app.route('/email')
 def email():
-    return render_template('email/confirmation-code.html', otp="238383")
+    return render_template('email/could-not-source.html', company_name="DCC BOOTS FOOTBALL")
