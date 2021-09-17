@@ -492,7 +492,7 @@ def company_settings(company_endpoint):
                 company.logo_url = company_logo_url
 
             company.save_to_db()
-            return redirect(url_for('company_requests', company_endpoint=company.endpoint))
+            return redirect(url_for('company_dashboard', company_endpoint=company.endpoint))
             
         return render_template("admin/settings.html", form=form, company=company)
     return render_template("errors/404.html")
