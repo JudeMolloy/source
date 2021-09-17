@@ -14,11 +14,12 @@ class ProtectedAdminHomeView(AdminIndexView):
     def inaccessible_callback(self, name, **kwargs):
         # redirect to login page if user doesn't have access
         return redirect(url_for('admin_login', next=request.url))
-
+    '''
     @expose('/')
     def index(self):
         #return self.render('/mastero-admin/index.html')
         pass
+    '''
 
 
 class AdminView(ModelView):
