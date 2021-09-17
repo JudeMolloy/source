@@ -280,28 +280,6 @@ def order_complete(company_endpoint, order_id):
 
 @app.route('/stripe-webhook', methods=['POST'])
 def stripe_webhook():
-
-    payload = request.body
-    #sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-    sig_header = request.headers.get('stripe-signature')
-    event = None
-
-    try:
-        event = stripe.Webhook.construct_event(
-        payload, sig_header, endpoint_secret
-        )
-    except ValueError as e:
-        # Invalid payload
-        print(e)
-        traceback.print_exc()
-        return e
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
-        print(e)
-        traceback.print_exc()
-        return e
-
-    '''
     # You can use webhooks to receive information about asynchronous payment events.
     # For more about our webhook events check out https://stripe.com/docs/webhooks.
     webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
@@ -325,7 +303,6 @@ def stripe_webhook():
     else:
         data = request_data['data']
         event_type = request_data['type']
-    '''
 
     data_object = data['object']
 
