@@ -70,7 +70,7 @@ def index():
         if company:
             return render_template('landing/landing.html', company=company)
         else:
-            return redirect(url_for(''))
+            return redirect(url_for('select_plan'))
     return render_template('landing/landing.html')
 
 
