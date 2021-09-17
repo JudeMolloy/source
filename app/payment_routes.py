@@ -11,6 +11,7 @@ from app.models.payment_link import PaymentLink
 from app.models.user import User
 from app.models.request import Request
 from app.models.order import Order
+from app.models.company import Company
 from flask_login import current_user, login_required
 from app.forms import BillingInfoForm
 from deorators import check_email_confirmed, check_active_subscription
