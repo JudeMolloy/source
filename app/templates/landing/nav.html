@@ -44,6 +44,12 @@
                 Log in
               </a>
             </div>
+          {% elif company %}
+            <div class="hidden md:flex">
+              <a href="{{ url_for('company_dashboard', company_endpoint=company.endpoint) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
+                Dashboard
+              </a>
+            </div>
           {% endif %}
         </nav>
   
@@ -83,8 +89,12 @@
               <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Company</a>
             </div>
             {% if current_user.is_anonymous %}
-              <a href="#" class="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100">
+              <a href="{{ url_for('login') }}" class="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100">
                 Log in
+              </a>
+            {% elif company %}
+              <a href="{{ url_for('company_dashboard', company_endpoint=company.endpoint) }}" class="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100">
+                Dashboard
               </a>
             {% endif %}
           </div>
