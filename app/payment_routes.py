@@ -294,6 +294,8 @@ def stripe_webhook():
                 payload=request.data, sig_header=signature, secret=webhook_secret)
             data = event['data']
         except Exception as e:
+            print(e)
+            traceback.print_exc()
             return e
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         event_type = event['type']
