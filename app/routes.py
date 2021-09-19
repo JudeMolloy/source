@@ -440,6 +440,8 @@ def company_could_not_source_request(company_endpoint, request_id):
     company = company_access(current_user.id, company_endpoint)
     if company:
 
+        current_usage_period = current_user.most_recent_usage_period
+
         request = Request.query.filter_by(company_id=company.id, id=request_id).first_or_404()
         request.could_not_source()
         request.save_to_db()
@@ -450,11 +452,16 @@ def company_could_not_source_request(company_endpoint, request_id):
         phone_number = product_request.phone
 
         Twilio.send_sms(message, sender, phone_number)
+        current_usage_period.increment_sms_count()
+
 
         email = product_request.email
         subject = "{} could not source your product.".format(company.name)
         html = render_template('email/send-payment-link.html', company_name=company.name)
         Email.send_email(email, subject, message, html)
+        current_usage_period.increment_email_count()
+
+        current_usage_period.save_to_db()
 
         return redirect(url_for('company_request', company_endpoint=company.endpoint, request_id=request.id))
 

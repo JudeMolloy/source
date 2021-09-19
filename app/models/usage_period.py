@@ -50,6 +50,12 @@ class UsagePeriod(db.Model):
             return False
         return self.end > datetime.utcnow()
 
+    def increment_email_count(self):
+        self.email_count += 1
+
+    def increment_sms_count(self):
+        self.email_count += 1
+
     def force_end(self):
         self.end = datetime.utcnow()
 
