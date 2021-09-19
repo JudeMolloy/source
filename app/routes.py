@@ -764,6 +764,14 @@ def company_unfulfill_order(company_endpoint, order_id):
 
     return render_template("errors/404.html")
 
-@app.route('/email')
-def email():
-    return render_template('email/could-not-source.html', company_name="DCC BOOTS FOOTBALL")
+#@app.route('/email')
+#def email():
+#    return render_template('email/could-not-source.html', company_name="DCC BOOTS FOOTBALL")
+
+@app.route('/terms')
+def terms():
+    return app.send_static_file('docs/terms.pdf') 
+
+@app.route('/privacy')
+def privacy():
+    return app.send_static_file('docs/privacy.pdf')

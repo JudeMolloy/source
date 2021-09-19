@@ -21,10 +21,16 @@ class RegistrationForm(FlaskForm):
     surname = StringField('Last Name*', validators=[DataRequired()])
     email = StringField('Email*', validators=[DataRequired(), Email()])
     phone = StringField('Phone*', validators=[DataRequired(), Length(max=16)])
+    agree = BooleanField('Agree')
     password = PasswordField('Password*', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password*', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
+
+    def validate_agree(self, agree):
+        print(agree.data)
+        if not agree.data:
+            raise ValidationError('You must read and accept the ToS and Privacy Policy to register for Mastero.')
 
     def validate_phone(self, phone):
         try:
