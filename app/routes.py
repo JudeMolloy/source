@@ -377,17 +377,15 @@ def company_dashboard(company_endpoint):
         total_orders = Order.query.filter_by(company_id=company.id).count()
 
         total_revenue =  sum(order.payment_amount for order in Order.query.filter_by(company_id=company.id).filter(Order.payment_amount!=None).filter((Order.completion_datetime != None) | (Order.paid == True and Order.payment_type == 'online')).all())
-        print(total_revenue)
         
         # avoids division by zero error
         if total_requests > 0:
             source_percentage = (Request.query.filter_by(company_id=company.id, sourced=True).count() / total_requests) * 100
         else:
             source_percentage = 0
-        print(source_percentage)
 
         total_orders_fulfilled = Order.query.filter_by(company_id=company.id).filter(Order.completion_datetime != None).count()
-        print(total_orders_fulfilled)
+
         return render_template('admin/dashboard.html', company=company, total_requests=total_requests,
          total_payment_links=total_payment_links, total_orders=total_orders,
           total_revenue=total_revenue, source_percentage=source_percentage,

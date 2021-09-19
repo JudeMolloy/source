@@ -23,3 +23,22 @@
     {% include 'mastero-footer.html' %}
 </body>
 </html>
+
+<script>
+      // MOBILE MENU
+
+	// get html elements
+	const closeBtn = document.querySelector("#close-button");
+    const burgerBtn = document.querySelector("#burger-button");
+	const mobileMenu = document.querySelector("#mobile-menu");
+
+	// event listeners
+	closeBtn.addEventListener("click", () => {
+	mobileMenu.classList.toggle("hidden");
+	});
+
+    burgerBtn.addEventListener("click", () => {
+	mobileMenu.classList.toggle("hidden");
+	});
+
+</script>
