@@ -74,7 +74,7 @@ def index():
     return render_template('landing/landing.html')
 
 
-@app.route('/contact-sales')
+@app.route('/contact-sales', methods = ['GET', 'POST'])
 def contact_sales():
     form = ContactSalesForm()
 
